@@ -8,75 +8,287 @@
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #090d1e 60%, #05070d 100%); color: #fff; font-family: 'Inter', sans-serif; min-height: 100vh; padding: 20px; overflow-x: hidden; }
-header { text-align: center; padding: 30px 20px 10px; }
-.badge { background: linear-gradient(135deg, #00ff9d, #38bdf8); color: #070912; display: inline-block; padding: 6px 18px; border-radius: 999px; font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 0.75rem; letter-spacing: 1.5px; box-shadow: 0 0 20px rgba(0, 255, 157, 0.4); margin-bottom: 15px; }
-h1 { font-family: 'Orbitron', sans-serif; font-size: 3rem; font-weight: 900; letter-spacing: 2px; margin-bottom: 8px; text-shadow: 0 0 30px rgba(99, 102, 241, 0.5); }
+body {
+  background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #090d1e 60%, #05070d 100%);
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  padding: 20px;
+  overflow-x: hidden;
+}
+
+header {
+  text-align: center;
+  padding: 30px 20px 10px;
+}
+
+.badge {
+  background: linear-gradient(135deg, #00ff9d, #38bdf8);
+  color: #070912;
+  display: inline-block;
+  padding: 6px 18px;
+  border-radius: 999px;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: 0.75rem;
+  letter-spacing: 1.5px;
+  box-shadow: 0 0 20px rgba(0, 255, 157, 0.4);
+  margin-bottom: 15px;
+}
+
+h1 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 3rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+  text-shadow: 0 0 30px rgba(99, 102, 241, 0.5);
+}
 h1 span { color: #00ff9d; }
 h1 b { color: #c084fc; }
-p.subtitle { color: #94a3b8; max-width: 600px; margin: 0 auto 25px; font-size: 0.95rem; line-height: 1.5; }
-.search-container { max-width: 500px; margin: 0 auto 35px; position: relative; }
-input#buscador { width: 100%; padding: 15px 22px; border-radius: 999px; border: 2px solid rgba(99, 102, 241, 0.4); background: rgba(15, 23, 42, 0.8); color: #fff; font-size: 0.95rem; outline: none; backdrop-filter: blur(10px); transition: all 0.3s ease; box-shadow: 0 8px 25px rgba(0,0,0,0.4); }
-input#buscador:focus { border-color: #00ff9d; box-shadow: 0 0 25px rgba(0, 255, 157, 0.25); }
-.games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; max-width: 1100px; margin: 0 auto; padding: 10px; }
-.game-card { background: rgba(17, 24, 39, 0.85); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; flex-direction: column; backdrop-filter: blur(10px); }
-.game-card:hover { transform: translateY(-6px); border-color: #38bdf8; box-shadow: 0 15px 35px rgba(56, 189, 248, 0.25); }
-.game-thumb { width: 100%; height: 140px; position: relative; overflow: hidden; background: #1e1b4b; }
-.game-thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
-.game-card:hover .game-thumb img { transform: scale(1.08); }
-.game-info { padding: 16px; display: flex; flex-direction: column; flex-grow: 1; text-align: left; }
-.game-info h3 { font-family: 'Orbitron', sans-serif; font-size: 1rem; margin-bottom: 6px; color: #f8fafc; }
-.game-info p { color: #94a3b8; font-size: 0.8rem; line-height: 1.4; margin-bottom: 16px; flex-grow: 1; }
-.play-btn { display: block; width: 100%; padding: 11px; border-radius: 12px; border: none; background: linear-gradient(135deg, #00ff9d, #0284c7); color: #070912; font-family: 'Orbitron', sans-serif; font-weight: 800; font-size: 0.8rem; text-align: center; text-decoration: none; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 15px rgba(0, 255, 157, 0.3); }
-.play-btn:hover { filter: brightness(1.15); transform: scale(1.02); box-shadow: 0 6px 20px rgba(0, 255, 157, 0.5); }
-footer { margin-top: 50px; color: #64748b; font-size: 0.8rem; text-align: center; padding-bottom: 20px; }
+
+p.subtitle {
+  color: #94a3b8;
+  max-width: 600px;
+  margin: 0 auto 25px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* BUSCADOR GAMER */
+.search-container {
+  max-width: 500px;
+  margin: 0 auto 35px;
+  position: relative;
+}
+input#buscador {
+  width: 100%;
+  padding: 15px 22px;
+  border-radius: 999px;
+  border: 2px solid rgba(99, 102, 241, 0.4);
+  background: rgba(15, 23, 42, 0.8);
+  color: #fff;
+  font-size: 0.95rem;
+  outline: none;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+}
+input#buscador:focus {
+  border-color: #00ff9d;
+  box-shadow: 0 0 25px rgba(0, 255, 157, 0.25);
+}
+
+/* GRILLA DE JUEGOS ESTILO FRIV */
+.games-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 10px;
+}
+
+.game-card {
+  background: rgba(17, 24, 39, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+  backdrop-filter: blur(10px);
+}
+
+.game-card:hover {
+  transform: translateY(-6px);
+  border-color: #38bdf8;
+  box-shadow: 0 15px 35px rgba(56, 189, 248, 0.25);
+}
+
+.game-thumb {
+  width: 100%;
+  height: 140px;
+  position: relative;
+  overflow: hidden;
+  background: #1e1b4b;
+}
+
+.game-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.game-card:hover .game-thumb img {
+  transform: scale(1.08);
+}
+
+.game-info {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  text-align: left;
+}
+
+.game-info h3 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1rem;
+  margin-bottom: 6px;
+  color: #f8fafc;
+}
+
+.game-info p {
+  color: #94a3b8;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  margin-bottom: 16px;
+  flex-grow: 1;
+}
+
+.play-btn {
+  display: block;
+  width: 100%;
+  padding: 11px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, #00ff9d, #0284c7);
+  color: #070912;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 800;
+  font-size: 0.8rem;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 15px rgba(0, 255, 157, 0.3);
+}
+
+.play-btn:hover {
+  filter: brightness(1.15);
+  transform: scale(1.02);
+  box-shadow: 0 6px 20px rgba(0, 255, 157, 0.5);
+}
+
+footer {
+  margin-top: 50px;
+  color: #64748b;
+  font-size: 0.8rem;
+  text-align: center;
+  padding-bottom: 20px;
+}
 </style>
 </head>
 <body>
+
 <header>
-  <div class="badge">ARCADE GRATIS - SIN DESCARGAR</div>
+  <div class="badge">🔥 ARCADE GRATIS • SIN DESCARGAR</div>
   <h1>JUEGOS<span>GPT</span><b>3D</b></h1>
-  <p class="subtitle">Explora nuestra coleccion de minijuegos web en 3D y 2D creados con Inteligencia Artificial. Haz clic y juega al instante!</p>
+  <p class="subtitle">Explora nuestra colección de minijuegos web en 3D y 2D creados con Inteligencia Artificial. ¡Haz clic y juega al instante!</p>
+  
   <div class="search-container">
-    <input id="buscador" placeholder="Buscar juego (ej: Ajedrez, Snake, Carreras)..." onkeyup="buscarJuegos()">
+    <input id="buscador" placeholder="🔍 Buscar juego (ej: Ajedrez, Snake, Carreras)..." onkeyup="buscarJuegos()">
   </div>
 </header>
+
 <div class="games-grid" id="grid-juegos">
+
+  <!-- JUEGO 1: AJEDREZ CRISTAL IA 3D -->
   <div class="game-card" data-name="ajedrez cristal ia 3d ajedrez">
-    <div class="game-thumb"><img src="https://images.unsplash.com/photo-1529699211952-734e80c4d42b?auto=format&fit=crop&w=600&q=80" alt="Ajedrez Cristal IA 3D"></div>
-    <div class="game-info"><h3>Ajedrez Cristal IA 3D</h3><p>Ajedrez tactico en 3D con IA, modo especial Cristal y temas personalizables.</p><a href="ajedrez_cristal_ia_3d.html" class="play-btn">JUGAR AHORA</a></div>
+    <div class="game-thumb">
+      <img src="https://images.unsplash.com/photo-1529699211952-734e80c4d42b?auto=format&fit=crop&w=600&q=80" alt="Ajedrez Cristal IA 3D">
+    </div>
+    <div class="game-info">
+      <h3>Ajedrez Cristal IA 3D</h3>
+      <p>Ajedrez táctico en 3D con IA, modo especial Cristal y temas personalizables.</p>
+      <a href="ajedrez_cristal_ia_3d.html" class="play-btn">JUGAR AHORA</a>
+    </div>
   </div>
+
+  <!-- JUEGO 2: Snake Neon -->
   <div class="game-card" data-name="snake neon viborita">
-    <div class="game-thumb"><img src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=600&q=80" alt="Snake Neon"></div>
-    <div class="game-info"><h3>Snake Neon</h3><p>El clasico juego de la viborita con efectos futuristas de luz neon.</p><a href="#" onclick="alert('Proximamente disponible')" class="play-btn">JUGAR AHORA</a></div>
+    <div class="game-thumb">
+      <img src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=600&q=80" alt="Snake Neon">
+    </div>
+    <div class="game-info">
+      <h3>Snake Neon</h3>
+      <p>El clásico juego de la viborita con efectos futuristas de luz neón.</p>
+      <a href="#" onclick="alert('Próximamente disponible')" class="play-btn">JUGAR AHORA</a>
+    </div>
   </div>
+
+  <!-- JUEGO 3: Memotest IA -->
   <div class="game-card" data-name="memotest ia memoria">
-    <div class="game-thumb"><img src="https://images.unsplash.com/photo-1606167668584-78701cded7f1?auto=format&fit=crop&w=600&q=80" alt="Memotest IA"></div>
-    <div class="game-info"><h3>Memotest IA</h3><p>Entrena tu mente encontrando todos los pares de fichas ocultas.</p><a href="#" onclick="alert('Proximamente')" class="play-btn">JUGAR AHORA</a></div>
+    <div class="game-thumb">
+      <img src="https://images.unsplash.com/photo-1606167668584-78701cded7f1?auto=format&fit=crop&w=600&q=80" alt="Memotest IA">
+    </div>
+    <div class="game-info">
+      <h3>Memotest IA</h3>
+      <p>Entrena tu mente encontrando todos los pares de fichas ocultas.</p>
+      <a href="#" onclick="alert('Próximamente')" class="play-btn">JUGAR AHORA</a>
+    </div>
   </div>
+
+  <!-- JUEGO 4: Carrera Turbo 3D -->
   <div class="game-card" data-name="carrera turbo 3d autos velocidad">
-    <div class="game-thumb"><img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=600&q=80" alt="Carrera Turbo 3D"></div>
-    <div class="game-info"><h3>Carrera Turbo 3D</h3><p>Carreras rapidas de aceleracion extrema en entornos 3D.</p><a href="#" onclick="alert('Proximamente')" class="play-btn">JUGAR AHORA</a></div>
+    <div class="game-thumb">
+      <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=600&q=80" alt="Carrera Turbo 3D">
+    </div>
+    <div class="game-info">
+      <h3>Carrera Turbo 3D</h3>
+      <p>Carreras rápidas de aceleración extrema en entornos 3D.</p>
+      <a href="#" onclick="alert('Próximamente')" class="play-btn">JUGAR AHORA</a>
+    </div>
   </div>
+
+  <!-- JUEGO 5: Laberinto -->
   <div class="game-card" data-name="laberinto aventura">
-    <div class="game-thumb"><img src="https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=600&q=80" alt="Laberinto"></div>
-    <div class="game-info"><h3>Laberinto</h3><p>Encuentra la salida en este intrincado laberinto generado por IA.</p><a href="#" onclick="alert('Proximamente')" class="play-btn">JUGAR AHORA</a></div>
+    <div class="game-thumb">
+      <img src="https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=600&q=80" alt="Laberinto">
+    </div>
+    <div class="game-info">
+      <h3>Laberinto</h3>
+      <p>Encuentra la salida en este intrincado laberinto generado por IA.</p>
+      <a href="#" onclick="alert('Próximamente')" class="play-btn">JUGAR AHORA</a>
+    </div>
   </div>
+
+  <!-- JUEGO 6: Rompe Bloques -->
   <div class="game-card" data-name="rompe bloques arcade">
-    <div class="game-thumb"><img src="https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=600&q=80" alt="Rompe Bloques"></div>
-    <div class="game-info"><h3>Rompe Bloques</h3><p>El clasico arcade de destruir bloques con rebote de pelota.</p><a href="#" onclick="alert('Proximamente')" class="play-btn">JUGAR AHORA</a></div>
+    <div class="game-thumb">
+      <img src="https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=600&q=80" alt="Rompe Bloques">
+    </div>
+    <div class="game-info">
+      <h3>Rompe Bloques</h3>
+      <p>El clásico arcade de destruir bloques con rebote de pelota.</p>
+      <a href="#" onclick="alert('Próximamente')" class="play-btn">JUGAR AHORA</a>
+    </div>
   </div>
+
 </div>
-<footer>JuegosGPT3D - Gratis Para Todos | Creado con IA en Argentina<br>juegosgpt3d.github.io</footer>
+
+<footer>
+  JuegosGPT3D - Gratis Para Todos | Creado con IA en Argentina<br>
+  juegosgpt3d.github.io
+</footer>
+
 <script>
 function buscarJuegos() {
   var texto = document.getElementById('buscador').value.toLowerCase();
   var tarjetas = document.querySelectorAll('.game-card');
   tarjetas.forEach(function(card) {
     var nombre = card.getAttribute('data-name');
-    if(nombre.includes(texto)) { card.style.display = 'flex'; } else { card.style.display = 'none'; }
+    if(nombre.includes(texto)) {
+      card.style.display = 'flex';
+    } else {
+      card.style.display = 'none';
+    }
   });
 }
 </script>
+
 </body>
 </html>
