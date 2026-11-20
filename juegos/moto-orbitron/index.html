@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Moto Autopista 3D — Calidad Orbitron</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #474a50;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: #f3f4f6;
+      touch-action: none;
+    }
+
+    #canvas-wrap {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* HUD minimalista en esquina superior izquierda */
+    .hud-badge {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 10;
+      pointer-events: none;
+      padding: 10px 14px 10px 12px;
+      background: rgba(24, 26, 30, 0.56);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-left: 3px solid #c2926e;
+      border-radius: 0 8px 8px 0;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+
+    .hud-title {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #f9fafb;
+      line-height: 1.25;
+    }
+
+    .hud-sub {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      color: #d6b296;
+      margin-top: 2px;
+    }
+
+    /* Selector sutil de acabado Orbitron arriba a la derecha */
+    .finish-bar {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 10;
+      display: flex;
+      gap: 6px;
+      background: rgba(24, 26, 30, 0.56);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      padding: 5px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.09);
+    }
+
+    .finish-btn {
+      border: none;
+      background: transparent;
+      color: #d1d5db;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      padding: 6px 10px;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: background 0.18s ease, color 0.18s ease;
+    }
+
+    .finish-btn.active {
+      background: rgba(194, 146, 110, 0.28);
+      color: #f7dec8;
+      box-shadow: inset 0 0 0 1px rgba(214, 178, 150, 0.45);
+    }
+
+    /* Controles inferiores: ZOOM izquierda, ROTAR derecha */
+    .bottom-controls {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 18px;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 18px;
+      pointer-events: none;
+    }
+
+    .ctrl-group {
+      display: flex;
+      gap: 8px;
+      pointer-events: auto;
+    }
+
+    .ctrl-btn {
+      appearance: none;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(24, 26, 30, 0.64);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: #f3f4f6;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+      transition: transform 0.12s ease, background 0.18s ease, border-color 0.18s ease;
+    }
+
+    .ctrl-btn:active {
+      transform: scale(0.96);
+    }
+
+    .ctrl-btn.active {
+      background: rgba(194, 146, 110, 0.34);
+      border-color: rgba(224, 185, 154, 0.65);
+      color: #fff3e8;
+    }
+
+    .zoom-step {
+      padding: 10px 12px;
+      min-width: 40px;
+      justify-content: center;
+    }
+
+    /* Mensaje de respaldo si WebGL no está disponible */
+    #fallback-banner {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      background: #3a3d42;
+      color: #f3f4f6;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .fallback-card {
+      max-width: 420px;
+      background: rgba(22, 24, 28, 0.9);
+      border: 1px solid rgba(194, 146, 110, 0.45);
+      border-radius: 14px;
+      padding: 24px;
+      line-height: 1.5;
+    }
+
+    .fallback-card h2 {
+      font-size: 16px;
+      margin-bottom: 8px;
+      color: #e2b896;
+    }
+
+    .fallback-card p {
+      font-size: 13px;
+      color: #d1d5db;
+    }
+
+    @media (max-width: 560px) {
+      .hud-badge {
+        top: 12px;
+        left: 12px;
+        padding: 8px 11px 8px 10px;
+      }
+      .hud-title {
+        font-size: 11.5px;
+      }
+      .hud-sub {
+        font-size: 10px;
+      }
+      .finish-bar {
+        top: 12px;
+        right: 12px;
+        padding: 4px;
+        gap: 3px;
+      }
+      .finish-btn {
+        font-size: 10px;
+        padding: 5px 7px;
+      }
+      .bottom-controls {
+        bottom: 14px;
+        padding: 0 12px;
+      }
+      .ctrl-btn {
+        padding: 9px 11px;
+        font-size: 11px;
+        border-radius: 10px;
+      }
+      .zoom-step {
+        padding: 9px 10px;
+        min-width: 34px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="canvas-wrap"></div>
+
+  <div class="hud-badge">
+    <div class="hud-title">PROTOTIPO V-04</div>
+    <div class="hud-sub">CALIDAD ORBITRON · GRAFITO / BRONCE</div>
+  </div>
+
+  <div class="finish-bar" role="group" aria-label="Acabado Orbitron">
+    <button class="finish-btn active" data-preset="orbitron" type="button">ORBITRON</button>
+    <button class="finish-btn" data-preset="titanio" type="button">TITANIO</button>
+    <button class="finish-btn" data-preset="cromo" type="button">CROMO MATE</button>
+  </div>
+
+  <div class="bottom-controls">
+    <div class="ctrl-group">
+      <button id="btn-zoom-in" class="ctrl-btn zoom-step" type="button" title="Acercar" aria-label="Acercar">＋</button>
+      <button id="btn-zoom-out" class="ctrl-btn zoom-step" type="button" title="Alejar" aria-label="Alejar">－</button>
+      <button id="btn-zoom-reset" class="ctrl-btn" type="button" title="Restablecer zoom y vista">🔍 ZOOM</button>
+    </div>
+
+    <div class="ctrl-group">
+      <button id="btn-rotate" class="ctrl-btn" type="button" title="Rotación orbital automática">⟳ ROTAR</button>
+    </div>
+  </div>
+
+  <div id="fallback-banner">
+    <div class="fallback-card">
+      <h2>WebGL no disponible en este navegador</h2>
+      <p>Para ver la escena 3D en calidad Orbitron, habilitá la aceleración por hardware o probá en un navegador compatible con WebGL.</p>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const CDN_SOURCES = [
+        "https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js",
+        "https://unpkg.com/three@0.128.0/build/three.min.js"
+      ];
+
+      function showFallback(msg) {
+        const banner = document.getElementById("fallback-banner");
+        if (banner) {
+          if (msg) {
+            const p = banner.querySelector("p");
+            if (p) p.textContent = msg;
+          }
+          banner.style.display = "flex";
+        }
+      }
+
+      function loadThreeSequential(index) {
+        if (window.THREE) {
+          initScene();
+          return;
+        }
+        if (index >= CDN_SOURCES.length) {
+          showFallback("No se pudo cargar Three.js desde los servidores CDN. Verificá tu conexión a internet e intentá recargar.");
+          return;
+        }
+        const script = document.createElement("script");
+        script.src = CDN_SOURCES[index];
+        script.async = true;
+        script.onload = function () {
+          if (window.THREE) {
+            initScene();
+          } else {
+            loadThreeSequential(index + 1);
+          }
+        };
+        script.onerror = function () {
+          loadThreeSequential(index + 1);
+        };
+        document.head.appendChild(script);
+      }
+
+      function initScene() {
+        const THREE = window.THREE;
+        const container = document.getElementById("canvas-wrap");
+
+        const renderer = new THREE.WebGLRenderer({
+          antialias: true,
+          powerPreference: "high-performance"
+        });
+
+        if (!renderer.getContext()) {
+          showFallback("No se pudo inicializar el contexto gráfico WebGL en este dispositivo.");
+          return;
+        }
+
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.06;
+        renderer.outputEncoding = THREE.sRGBEncoding;
+        container.appendChild(renderer.domElement);
+
+        // Escena y carretera recta diurna limpia
+        const SKY_COLOR = 0x9fb2c4;
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(SKY_COLOR);
+        scene.fog = new THREE.FogExp2(SKY_COLOR, 0.0042);
+
+        const camera = new THREE.PerspectiveCamera(
+          42,
+          window.innerWidth / window.innerHeight,
+          0.1,
+          360
+        );
+
+        // Mapa de entorno procedural para reflejos metálicos y de bronce limpios
+        function createOrbitronEnvMap() {
+          const w = 512;
+          const h = 256;
+          const canvas = document.createElement("canvas");
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext("2d");
+
+          const skyGrad = ctx.createLinearGradient(0, 0, 0, h * 0.56);
+          skyGrad.addColorStop(0.0, "#6f89a3");
+          skyGrad.addColorStop(0.65, "#a9bdd0");
+          skyGrad.addColorStop(1.0, "#dce4ec");
+          ctx.fillStyle = skyGrad;
+          ctx.fillRect(0, 0, w, h * 0.56);
+
+          const roadGrad = ctx.createLinearGradient(0, h * 0.56, 0, h);
+          roadGrad.addColorStop(0.0, "#686c72");
+          roadGrad.addColorStop(0.5, "#4c4f54");
+          roadGrad.addColorStop(1.0, "#383a3e");
+          ctx.fillStyle = roadGrad;
+          ctx.fillRect(0, h * 0.56, w, h * 0.44);
+
+          // Franjas de reflexión suave para dar volumen metálico
+          ctx.fillStyle = "rgba(255, 250, 240, 0.42)";
+          ctx.fillRect(w * 0.14, h * 0.12, w * 0.24, h * 0.11);
+          ctx.fillRect(w * 0.62, h * 0.16, w * 0.22, h * 0.09);
+
+          ctx.fillStyle = "rgba(218, 174, 138, 0.28)";
+          ctx.fillRect(w * 0.36, h * 0.28, w * 0.28, h * 0.06);
+
+          const tex = new THREE.CanvasTexture(canvas);
+          tex.mapping = THREE.EquirectangularReflectionMapping;
+          tex.encoding = THREE.sRGBEncoding;
+          const pmrem = new THREE.PMREMGenerator(renderer);
+          pmrem.compileEquirectangularShader();
+          const rt = pmrem.fromEquirectangular(tex);
+          tex.dispose();
+          pmrem.dispose();
+          return rt.texture;
+        }
+
+        scene.environment = createOrbitronEnvMap();
+
+        // Iluminación diurna limpia con sombra definida
+        const hemiLight = new THREE.HemisphereLight(0xd8e5f2, 0x56595f, 0.95);
+        hemiLight.position.set(0, 30, 0);
+        scene.add(hemiLight);
+
+        const keyLight = new THREE.DirectionalLight(0xfff8ee, 1.55);
+        keyLight.position.set(8, 15, 10);
+        keyLight.castShadow = true;
+        keyLight.shadow.mapSize.width = 2048;
+        keyLight.shadow.mapSize.height = 2048;
+        keyLight.shadow.camera.near = 2;
+        keyLight.shadow.camera.far = 45;
+        const d = 7.5;
+        keyLight.shadow.camera.left = -d;
+        keyLight.shadow.camera.right = d;
+        keyLight.shadow.camera.top = d;
+        keyLight.shadow.camera.bottom = -d;
+        keyLight.shadow.bias = -0.0005;
+        scene.add(keyLight);
+
+        const rimLight = new THREE.DirectionalLight(0xdcb998, 0.65);
+        rimLight.position.set(-9, 7, -8);
+        scene.add(rimLight);
+
+        // Texturas procedurales (asfalto, cepillado Orbitron, fibra de carbono, cuero, rotor)
+        function createAsphaltTexture() {
+          const canvas = document.createElement("canvas");
+          canvas.width = 512;
+          canvas.height = 512;
+          const ctx = canvas.getContext("2d");
+
+          ctx.fillStyle = "#5c6066";
+          ctx.fillRect(0, 0, 512, 512);
+
+          // Grano fino de asfalto
+          for (let i = 0; i < 18000; i++) {
+            const x = Math.random() * 512;
+            const y = Math.random() * 512;
+            const v = 72 + Math.floor(Math.random() * 44);
+            ctx.fillStyle = `rgba(${v}, ${v + 1}, ${v + 3}, 0.35)`;
+            ctx.fillRect(x, y, 2, 2);
+          }
+
+          // Huella sutil de rodadura en la carretera recta
+          const trackGradL = ctx.createLinearGradient(110, 0, 175, 0);
+          trackGradL.addColorStop(0, "rgba(38,40,44,0)");
+          trackGradL.addColorStop(0.5, "rgba(38,40,44,0.22)");
+          trackGradL.addColorStop(1, "rgba(38,40,44,0)");
+          ctx.fillStyle = trackGradL;
+          ctx.fillRect(110, 0, 65, 512);
+
+          const trackGradR = ctx.createLinearGradient(337, 0, 402, 0);
+          trackGradR.addColorStop(0, "rgba(38,40,44,0)");
+          trackGradR.addColorStop(0.5, "rgba(38,40,44,0.22)");
+          trackGradR.addColorStop(1, "rgba(38,40,44,0)");
+          ctx.fillStyle = trackGradR;
+          ctx.fillRect(337, 0, 65, 512);
+
+          // Bordes blancos continuos
+          ctx.fillStyle = "#d9dde2";
+          ctx.fillRect(24, 0, 10, 512);
+          ctx.fillRect(478, 0, 10, 512);
+
+          // Línea central discontinua limpia
+          ctx.fillStyle = "#e2e6ec";
+          for (let y = 24; y < 512; y += 128) {
+            ctx.fillRect(252, y, 8, 68);
+          }
+
+          const tex = new THREE.CanvasTexture(canvas);
+          tex.wrapS = THREE.RepeatWrapping;
+          tex.wrapT = THREE.RepeatWrapping;
+          tex.repeat.set(1, 46);
+          tex.anisotropy = 8;
+          tex.encoding = THREE.sRGBEncoding;
+          return tex;
+        }
+
+        function createBrushedBumpTexture() {
+          const canvas = document.createElement("canvas");
+          canvas.width = 256;
+          canvas.height = 256;
+          const ctx = canvas.getContext("2d");
+          ctx.fillStyle = "#808080";
+          ctx.fillRect(0, 0, 256, 256);
+
+          for (let y = 0; y < 256; y++) {
+            const alpha = 0.04 + Math.random() * 0.08;
+            ctx.fillStyle = Math.random() > 0.5 ? `rgba(255,255,255,${alpha})` : `rgba(0,0,0,${alpha})`;
+            ctx.fillRect(0, y, 256, 1);
+          }
+
+          const tex = new THREE.CanvasTexture(canvas);
+          tex.wrapS = THREE.RepeatWrapping;
+          tex.wrapT = THREE.RepeatWrapping;
+          tex.repeat.set(3, 3);
+          return tex;
+        }
+
+        function createCarbonTexture() {
+          const canvas = document.createElement("canvas");
+          canvas.width = 128;
+          canvas.height = 128;
+          const ctx = canvas.getContext("2d");
+          ctx.fillStyle = "#222428";
+          ctx.fillRect(0, 0, 128, 128);
+
+          for (let y = 0; y < 128; y += 8) {
+            for (let x = 0; x < 128; x += 8) {
+              const shift = ((x + y) / 8) % 2 === 0;
+              ctx.fillStyle = shift ? "#34373e" : "#181a1d";
+              ctx.fillRect(x, y, 4, 4);
+              ctx.fillStyle = shift ? "#181a1d" : "#2d3036";
+              ctx.fillRect(x + 4, y + 4, 4, 4);
+            }
+          }
+
+          const tex = new THREE.CanvasTexture(canvas);
+          tex.wrapS = THREE.RepeatWrapping;
+          tex.wrapT = THREE.RepeatWrapping;
+          tex.repeat.set(6, 6);
+          tex.encoding = THREE.sRGBEncoding;
+          return tex;
+        }
+
+        function createLeatherTexture() {
+          const canvas = document.createElement("canvas");
+          canvas.width = 128;
+          canvas.height = 128;
+          const ctx = canvas.getContext("2d");
+          ctx.fillStyle = "#3c3936";
+          ctx.fillRect(0, 0, 128, 128);
+          for (let i = 0; i < 2500; i++) {
+            const x = Math.random() * 128;
+            const y = Math.random() * 128;
+            const shade = 48 + Math.floor(Math.random() * 26);
+            ctx.fillStyle = `rgb(${shade},${shade - 2},${shade - 4})`;
+            ctx.fillRect(x, y, 2, 2);
+          }
+          const tex = new THREE.CanvasTexture(canvas);
+          tex.wrapS = THREE.RepeatWrapping;
+          tex.wrapT = THREE.RepeatWrapping;
+          tex.repeat.set(4, 4);
+          tex.encoding = THREE.sRGBEncoding;
+          return tex;
+        }
+
+        function createBrakeDiscTexture() {
+          const canvas = document.createElement("canvas");
+          canvas.width = 256;
+          canvas.height = 256;
+          const ctx = canvas.getContext("2d");
+          const cx = 128, cy = 128;
+
+          ctx.fillStyle = "#8a8f96";
+          ctx.beginPath();
+          ctx.arc(cx, cy, 124, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Ranuras y perforaciones
+          ctx.strokeStyle = "#484c52";
+          ctx.lineWidth = 2;
+          for (let i = 0; i < 24; i++) {
+            const a = (i / 24) * Math.PI * 2;
+            ctx.beginPath();
+            ctx.moveTo(cx + Math.cos(a) * 62, cy + Math.sin(a) * 62);
+            ctx.lineTo(cx + Math.cos(a + 0.14) * 118, cy + Math.sin(a + 0.14) * 118);
+            ctx.stroke();
+          }
+
+          ctx.fillStyle = "#3c4046";
+          for (let ring = 0; ring < 3; ring++) {
+            const r = 72 + ring * 18;
+            const count = 16;
+            for (let j = 0; j < count; j++) {
+              const a = (j / count) * Math.PI * 2 + ring * 0.15;
+              ctx.beginPath();
+              ctx.arc(cx + Math.cos(a) * r, cy + Math.sin(a) * r, 2.3, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          }
+
+          ctx.fillStyle = "#2b2e33";
+          ctx.beginPath();
+          ctx.arc(cx, cy, 56, 0, Math.PI * 2);
+          ctx.fill();
+
+          const tex = new THREE.CanvasTexture(canvas);
+          tex.encoding = THREE.sRGBEncoding;
+          return tex;
+        }
+
+        const asphaltTex = createAsphaltTexture();
+        const brushedBump = createBrushedBumpTexture();
+        const carbonTex = createCarbonTexture();
+        const leatherTex = createLeatherTexture();
+        const discTex = createBrakeDiscTexture();
+
+        // Carretera recta limpia (solo carretera recta + arcenes bajos de tierra/concreto)
+        const roadGroup = new THREE.Group();
+        scene.add(roadGroup);
+
+        const roadGeo = new THREE.PlaneGeometry(11.5, 360);
+        const roadMat = new THREE.MeshStandardMaterial({
+          map: asphaltTex,
+          roughness: 0.88,
+          metalness: 0.04
+        });
+        const roadMesh = new THREE.Mesh(roadGeo, roadMat);
+        roadMesh.rotation.x = -Math.PI / 2;
+        roadMesh.receiveShadow = true;
+        roadGroup.add(roadMesh);
+
+        // Franjas laterales limpias de carretera recta (sin edificios, árboles ni tráfico)
+        const shoulderMat = new THREE.MeshStandardMaterial({
+          color: 0x7b8288,
+          roughness: 0.94,
+          metalness: 0.02
+        });
+        const leftShoulder = new THREE.Mesh(new THREE.PlaneGeometry(160, 360), shoulderMat);
+        leftShoulder.rotation.x = -Math.PI / 2;
+        leftShoulder.position.set(-85.75, -0.02, 0);
+        leftShoulder.receiveShadow = true;
+        roadGroup.add(leftShoulder);
+
+        const rightShoulder = new THREE.Mesh(new THREE.PlaneGeometry(160, 360), shoulderMat);
+        rightShoulder.rotation.x = -Math.PI / 2;
+        rightShoulder.position.set(85.75, -0.02, 0);
+        rightShoulder.receiveShadow = true;
+        roadGroup.add(rightShoulder);
+
+        // Materiales en calidad Orbitron
+        const presets = {
+          orbitron: {
+            bodyColor: 0x4c5057,
+            bodyMetalness: 0.42,
+            bodyRoughness: 0.48,
+            accentColor: 0xc2926e,
+            accentMetalness: 0.68,
+            accentRoughness: 0.34,
+            chassisColor: 0x2a2d32,
+            ledColor: 0xeaf4ff,
+            ledEmissive: 0x9fd0ff
+          },
+          titanio: {
+            bodyColor: 0x7b8088,
+            bodyMetalness: 0.62,
+            bodyRoughness: 0.36,
+            accentColor: 0xc89d7a,
+            accentMetalness: 0.75,
+            accentRoughness: 0.28,
+            chassisColor: 0x26292e,
+            ledColor: 0xf4f8fc,
+            ledEmissive: 0xb8dcff
+          },
+          cromo: {
+            bodyColor: 0x393c42,
+            bodyMetalness: 0.52,
+            bodyRoughness: 0.42,
+            accentColor: 0xb58563,
+            accentMetalness: 0.72,
+            accentRoughness: 0.32,
+            chassisColor: 0x1f2125,
+            ledColor: 0xe6f0fa,
+            ledEmissive: 0x8ec4f8
+          }
+        };
+
+        const activeCfg = presets.orbitron;
+
+        const bodyMat = new THREE.MeshStandardMaterial({
+          color: activeCfg.bodyColor,
+          roughness: activeCfg.bodyRoughness,
+          metalness: activeCfg.bodyMetalness,
+          bumpMap: brushedBump,
+          bumpScale: 0.006,
+          flatShading: true
+        });
+
+        const accentMat = new THREE.MeshStandardMaterial({
+          color: activeCfg.accentColor,
+          roughness: activeCfg.accentRoughness,
+          metalness: activeCfg.accentMetalness,
+          bumpMap: brushedBump,
+          bumpScale: 0.005,
+          flatShading: true
+        });
+
+        const chassisMat = new THREE.MeshStandardMaterial({
+          color: activeCfg.chassisColor,
+          roughness: 0.56,
+          metalness: 0.45,
+          flatShading: true
+        });
+
+        const carbonMat = new THREE.MeshStandardMaterial({
+          map: carbonTex,
+          roughness: 0.46,
+          metalness: 0.22,
+          flatShading: true
+        });
+
+        const tireMat = new THREE.MeshStandardMaterial({
+          color: 0x24262a,
+          roughness: 0.86,
+          metalness: 0.06,
+          bumpMap: brushedBump,
+          bumpScale: 0.012,
+          flatShading: true
+        });
+
+        const seatMat = new THREE.MeshStandardMaterial({
+          map: leatherTex,
+          roughness: 0.82,
+          metalness: 0.04,
+          flatShading: true
+        });
+
+        const discMat = new THREE.MeshStandardMaterial({
+          map: discTex,
+          roughness: 0.32,
+          metalness: 0.85,
+          side: THREE.DoubleSide
+        });
+
+        const glassMat = new THREE.MeshStandardMaterial({
+          color: 0x9eb2c4,
+          roughness: 0.14,
+          metalness: 0.15,
+          transparent: true,
+          opacity: 0.46
+        });
+
+        const ledMat = new THREE.MeshStandardMaterial({
+          color: activeCfg.ledColor,
+          emissive: activeCfg.ledEmissive,
+          emissiveIntensity: 1.35,
+          roughness: 0.2,
+          metalness: 0.1
+        });
+
+        // Construcción del Prototipo V-04 Orbitron (ejes: +Z adelante, +Y arriba, +X izquierda/derecha)
+        const bikeGroup = new THREE.Group();
+        scene.add(bikeGroup);
+
+        // Chasis y bloque central
+        const frameGroup = new THREE.Group();
+        bikeGroup.add(frameGroup);
+
+        // Quilla / cubrecárter facetado en bronce satinado
+        const bellyGeo = new THREE.CylinderGeometry(0.19, 0.26, 0.72, 6);
+        bellyGeo.rotateX(Math.PI / 2);
+        bellyGeo.scale(1.15, 0.78, 1.0);
+        const bellyMesh = new THREE.Mesh(bellyGeo, accentMat);
+        bellyMesh.position.set(0, 0.34, 0.14);
+        bellyMesh.castShadow = true;
+        bellyMesh.receiveShadow = true;
+        frameGroup.add(bellyMesh);
+
+        // Motor central detallado low-poly
+        const engineBlock = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.38, 0.44), chassisMat);
+        engineBlock.position.set(0, 0.56, 0.08);
+        engineBlock.castShadow = true;
+        frameGroup.add(engineBlock);
+
+        for (let i = 0; i < 5; i++) {
+          const fin = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.018, 0.38), bodyMat);
+          fin.position.set(0, 0.65 + i * 0.032, 0.09);
+          fin.castShadow = true;
+          frameGroup.add(fin);
+        }
+
+        // Estructura tubular multitubular en bronce
+        function addTube(p1, p2, radius, mat) {
+          const v1 = new THREE.Vector3(p1[0], p1[1], p1[2]);
+          const v2 = new THREE.Vector3(p2[0], p2[1], p2[2]);
+          const dir = new THREE.Vector3().subVectors(v2, v1);
+          const len = dir.length();
+          const geo = new THREE.CylinderGeometry(radius, radius, len, 6);
+          const mesh = new THREE.Mesh(geo, mat);
+          mesh.position.copy(v1).addScaledVector(dir, 0.5);
+          mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.normalize());
+          mesh.castShadow = true;
+          frameGroup.add(mesh);
+          return mesh;
+        }
+
+        [-1, 1].forEach((side) => {
+          const x = side * 0.18;
+          addTube([x, 0.76, 0.34], [x, 0.44, -0.06], 0.024, accentMat);
+          addTube([x, 0.74, 0.12], [x, 0.46, -0.22], 0.022, accentMat);
+          addTube([x, 0.78, -0.22], [x, 0.88, -0.68], 0.018, bodyMat);
+          addTube([x, 0.68, -0.24], [x, 0.83, -0.68], 0.016, accentMat);
+          addTube([x, 0.52, -0.22], [x, 0.48, -0.78], 0.025, bodyMat);
+        });
+
+        // Radiador frontal
+        const radiator = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.28, 0.12), chassisMat);
+        radiator.position.set(0, 0.68, 0.42);
+        radiator.rotation.x = -0.22;
+        radiator.castShadow = true;
+        frameGroup.add(radiator);
+
+        // Depósito escultórico facetado en grafito
+        const tankGeo = new THREE.CylinderGeometry(0.24, 0.31, 0.66, 7);
+        tankGeo.rotateX(Math.PI / 2 - 0.14);
+        tankGeo.scale(1.08, 0.84, 1.0);
+        const tankMesh = new THREE.Mesh(tankGeo, bodyMat);
+        tankMesh.position.set(0, 0.92, 0.04);
+        tankMesh.castShadow = true;
+        tankMesh.receiveShadow = true;
+        frameGroup.add(tankMesh);
+
+        // Toma de aire / tapa superior del depósito
+        const tankCap = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 0.02, 8), accentMat);
+        tankCap.position.set(0, 1.11, 0.14);
+        frameGroup.add(tankCap);
+
+        // Aletas laterales del radiador / carenado lateral facetado
+        [-1, 1].forEach((side) => {
+          const shroudGeo = new THREE.BoxGeometry(0.14, 0.34, 0.36);
+          const shroud = new THREE.Mesh(shroudGeo, bodyMat);
+          shroud.position.set(side * 0.23, 0.77, 0.28);
+          shroud.rotation.y = side * -0.22;
+          shroud.rotation.z = side * 0.16;
+          shroud.castShadow = true;
+          frameGroup.add(shroud);
+
+          const bronzeAccent = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.24, 0.24), accentMat);
+          bronzeAccent.position.set(side * 0.25, 0.62, 0.24);
+          bronzeAccent.rotation.x = 0.35;
+          bronzeAccent.castShadow = true;
+          frameGroup.add(bronzeAccent);
+        });
+
+        // Asiento dividido en cuero texturizado
+        const riderSeat = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.08, 0.44), seatMat);
+        riderSeat.position.set(0, 0.83, -0.36);
+        riderSeat.rotation.x = 0.06;
+        riderSeat.castShadow = true;
+        frameGroup.add(riderSeat);
+
+        const pillionSeat = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.07, 0.22), seatMat);
+        pillionSeat.position.set(0, 0.90, -0.68);
+        pillionSeat.rotation.x = -0.14;
+        pillionSeat.castShadow = true;
+        frameGroup.add(pillionSeat);
+
+        // Colín trasero facetado
+        const tailGeo = new THREE.BoxGeometry(0.28, 0.16, 0.42);
+        const tailMesh = new THREE.Mesh(tailGeo, bodyMat);
+        tailMesh.position.set(0, 0.86, -0.66);
+        tailMesh.rotation.x = -0.22;
+        tailMesh.castShadow = true;
+        frameGroup.add(tailMesh);
+
+        // Piloto trasero LED rojo
+        const tailLight = new THREE.Mesh(
+          new THREE.BoxGeometry(0.14, 0.03, 0.03),
+          new THREE.MeshStandardMaterial({
+            color: 0xff3b30,
+            emissive: 0xd9261c,
+            emissiveIntensity: 1.2
+          })
+        );
+        tailLight.position.set(0, 0.90, -0.87);
+        frameGroup.add(tailLight);
+
+        // Escape bajo lateral derecho
+        const exhaust = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.068, 0.44, 7), chassisMat);
+        exhaust.rotation.x = Math.PI / 2 - 0.12;
+        exhaust.position.set(-0.22, 0.36, -0.24);
+        exhaust.castShadow = true;
+        frameGroup.add(exhaust);
+
+        // Conjunto de dirección, horquilla invertida, faro y manillar
+        const steerPivot = new THREE.Group();
+        steerPivot.position.set(0, 0.96, 0.52);
+        bikeGroup.add(steerPivot);
+
+        const forkAngle = -0.36; // inclinada hacia adelante (+Z)
+        const forkGroup = new THREE.Group();
+        forkGroup.rotation.x = forkAngle;
+        steerPivot.add(forkGroup);
+
+        [-1, 1].forEach((side) => {
+          const x = side * 0.115;
+          // Barra superior en bronce
+          const upperTube = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, 0.42, 8), accentMat);
+          upperTube.position.set(x, -0.14, 0);
+          upperTube.castShadow = true;
+          forkGroup.add(upperTube);
+
+          // Botella inferior negra mate
+          const lowerLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.034, 0.034, 0.42, 8), chassisMat);
+          lowerLeg.position.set(x, -0.46, 0);
+          lowerLeg.castShadow = true;
+          forkGroup.add(lowerLeg);
+
+          // Protector de horquilla en bronce
+          const guard = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.18, 0.07), accentMat);
+          guard.position.set(x * 1.04, -0.34, 0.02);
+          forkGroup.add(guard);
+        });
+
+        // Guardabarros delantero en fibra de carbono
+        const frontFender = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 0.22, 10, 1, true, -0.55, 1.1), carbonMat);
+        frontFender.rotation.z = Math.PI / 2;
+        frontFender.position.set(0, -0.56, 0.16);
+        forkGroup.add(frontFender);
+
+        // Cúpula parabrisas ahumada
+        const visor = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.22, 0.02), glassMat);
+        visor.position.set(0, 0.18, 0.05);
+        visor.rotation.x = -0.45;
+        steerPivot.add(visor);
+
+        // Faro frontal facetado con firma lumínica en V
+        const headHousing = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.08, 0.14, 6), bodyMat);
+        headHousing.rotation.x = Math.PI / 2 - 0.2;
+        headHousing.position.set(0, 0.01, 0.14);
+        headHousing.castShadow = true;
+        steerPivot.add(headHousing);
+
+        const ledLeft = new THREE.Mesh(new THREE.BoxGeometry(0.022, 0.085, 0.02), ledMat);
+        ledLeft.position.set(-0.042, 0.01, 0.21);
+        ledLeft.rotation.z = 0.26;
+        steerPivot.add(ledLeft);
+
+        const ledRight = new THREE.Mesh(new THREE.BoxGeometry(0.022, 0.085, 0.02), ledMat);
+        ledRight.position.set(0.042, 0.01, 0.21);
+        ledRight.rotation.z = -0.26;
+        steerPivot.add(ledRight);
+
+        const ledBottom = new THREE.Mesh(new THREE.BoxGeometry(0.065, 0.018, 0.02), ledMat);
+        ledBottom.position.set(0, -0.028, 0.21);
+        steerPivot.add(ledBottom);
+
+        // Manillar y puños con detalle en bronce
+        const barTube = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, 0.74, 8), chassisMat);
+        barTube.rotation.z = Math.PI / 2;
+        barTube.position.set(0, 0.06, -0.04);
+        steerPivot.add(barTube);
+
+        [-1, 1].forEach((side) => {
+          const grip = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.12, 8), seatMat);
+          grip.rotation.z = Math.PI / 2;
+          grip.position.set(side * 0.34, 0.06, -0.04);
+          steerPivot.add(grip);
+
+          const barEnd = new THREE.Mesh(new THREE.CylinderGeometry(0.023, 0.023, 0.025, 8), accentMat);
+          barEnd.rotation.z = Math.PI / 2;
+          barEnd.position.set(side * 0.41, 0.06, -0.04);
+          steerPivot.add(barEnd);
+        });
+
+        // Ruedas facetadas con taco, llanta de bronce y disco perforado
+        function createWheelAssembly(radius, width, isFront) {
+          const wheelPivot = new THREE.Group();
+          const spinGroup = new THREE.Group();
+          wheelPivot.add(spinGroup);
+
+          // Neumático facetado
+          const tireGeo = new THREE.TorusGeometry(radius - width * 0.45, width * 0.52, 7, 22);
+          tireGeo.rotateY(Math.PI / 2);
+          const tireMesh = new THREE.Mesh(tireGeo, tireMat);
+          tireMesh.castShadow = true;
+          tireMesh.receiveShadow = true;
+          spinGroup.add(tireMesh);
+
+          // Tacos perimetrales sutiles para lectura low-poly
+          const treadCount = 18;
+          const treadGeo = new THREE.BoxGeometry(width * 0.96, 0.022, 0.075);
+          for (let i = 0; i < treadCount; i++) {
+            const a = (i / treadCount) * Math.PI * 2;
+            const block = new THREE.Mesh(treadGeo, tireMat);
+            block.position.set(0, Math.cos(a) * (radius - 0.01), Math.sin(a) * (radius - 0.01));
+            block.rotation.x = -a;
+            block.castShadow = true;
+            spinGroup.add(block);
+          }
+
+          // Aro exterior de la llanta en bronce satinado
+          const rimGeo = new THREE.TorusGeometry(radius - width * 0.95, 0.016, 6, 20);
+          rimGeo.rotateY(Math.PI / 2);
+          const rimMesh = new THREE.Mesh(rimGeo, accentMat);
+          spinGroup.add(rimMesh);
+
+          // Rayos en Y
+          const spokes = 6;
+          for (let i = 0; i < spokes; i++) {
+            const a = (i / spokes) * Math.PI * 2;
+            const spoke = new THREE.Mesh(new THREE.BoxGeometry(width * 0.42, radius * 0.68, 0.024), chassisMat);
+            spoke.position.set(0, Math.cos(a) * (radius * 0.46), Math.sin(a) * (radius * 0.46));
+            spoke.rotation.x = -a;
+            spinGroup.add(spoke);
+          }
+
+          // Disco de freno perforado y pinza
+          const disc = new THREE.Mesh(new THREE.CylinderGeometry(radius * 0.58, radius * 0.58, 0.012, 20), discMat);
+          disc.rotation.z = Math.PI / 2;
+          disc.position.x = isFront ? width * 0.34 : -width * 0.32;
+          spinGroup.add(disc);
+
+          const caliper = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.09, 0.11), accentMat);
+          caliper.position.set(isFront ? width * 0.38 : -width * 0.35, radius * 0.36, -radius * 0.24);
+          wheelPivot.add(caliper);
+
+          const axle = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, width * 1.25, 8), accentMat);
+          axle.rotation.z = Math.PI / 2;
+          wheelPivot.add(axle);
+
+          return { pivot: wheelPivot, spin: spinGroup };
+        }
+
+        const frontWheel = createWheelAssembly(0.35, 0.14, true);
+        frontWheel.pivot.position.set(0, 0.35, 0.72);
+        bikeGroup.add(frontWheel.pivot);
+
+        const rearWheel = createWheelAssembly(0.35, 0.19, false);
+        rearWheel.pivot.position.set(0, 0.35, -0.74);
+        bikeGroup.add(rearWheel.pivot);
+
+        // Cambio de acabados Orbitron en tiempo real
+        const finishButtons = document.querySelectorAll(".finish-btn");
+        finishButtons.forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const key = btn.getAttribute("data-preset");
+            const cfg = presets[key];
+            if (!cfg) return;
+
+            finishButtons.forEach((b) => b.classList.remove("active"));
+            btn.classList.add("active");
+
+            bodyMat.color.setHex(cfg.bodyColor);
+            bodyMat.metalness = cfg.bodyMetalness;
+            bodyMat.roughness = cfg.bodyRoughness;
+
+            accentMat.color.setHex(cfg.accentColor);
+            accentMat.metalness = cfg.accentMetalness;
+            accentMat.roughness = cfg.accentRoughness;
+
+            chassisMat.color.setHex(cfg.chassisColor);
+            ledMat.color.setHex(cfg.ledColor);
+            ledMat.emissive.setHex(cfg.ledEmissive);
+          });
+        });
+
+        // Cámara orbital 360° con arrastre táctil / ratón, pellizco / rueda y botones
+        const target = new THREE.Vector3(0, 0.68, 0.0);
+        let yaw = 0.62;       // ángulo horizontal (3/4 frontal derecho)
+        let pitch = 0.24;     // elevación vertical
+        let distance = 3.45;  // distancia a la moto
+
+        const DEFAULT_YAW = 0.62;
+        const DEFAULT_PITCH = 0.24;
+        const DEFAULT_DIST = 3.45;
+        const MIN_DIST = 1.55;
+        const MAX_DIST = 7.8;
+        const MIN_PITCH = 0.05;
+        const MAX_PITCH = 1.18;
+
+        let autoRotate = false;
+        let isDragging = false;
+        let lastX = 0;
+        let lastY = 0;
+        let pinchStartDist = 0;
+        let pinchStartCamDist = distance;
+
+        function updateCamera() {
+          const cosPitch = Math.cos(pitch);
+          const x = target.x + Math.sin(yaw) * cosPitch * distance;
+          const y = Math.max(0.22, target.y + Math.sin(pitch) * distance);
+          const z = target.z + Math.cos(yaw) * cosPitch * distance;
+          camera.position.set(x, y, z);
+          camera.lookAt(target);
+        }
+
+        function setZoomDistance(nextDist) {
+          distance = Math.max(MIN_DIST, Math.min(MAX_DIST, nextDist));
+          updateCamera();
+        }
+
+        // Eventos táctiles y de ratón sobre el canvas
+        const dom = renderer.domElement;
+
+        dom.addEventListener("pointerdown", (e) => {
+          if (e.pointerType === "touch") return;
+          isDragging = true;
+          lastX = e.clientX;
+          lastY = e.clientY;
+        });
+
+        window.addEventListener("pointermove", (e) => {
+          if (!isDragging || e.pointerType === "touch") return;
+          const dx = e.clientX - lastX;
+          const dy = e.clientY - lastY;
+          lastX = e.clientX;
+          lastY = e.clientY;
+
+          yaw -= dx * 0.0075;
+          pitch = Math.max(MIN_PITCH, Math.min(MAX_PITCH, pitch + dy * 0.0065));
+          updateCamera();
+        });
+
+        window.addEventListener("pointerup", () => {
+          isDragging = false;
+        });
+
+        dom.addEventListener("wheel", (e) => {
+          e.preventDefault();
+          setZoomDistance(distance + e.deltaY * 0.0024);
+        }, { passive: false });
+
+        dom.addEventListener("touchstart", (e) => {
+          if (e.touches.length === 1) {
+            isDragging = true;
+            lastX = e.touches[0].clientX;
+            lastY = e.touches[0].clientY;
+          } else if (e.touches.length === 2) {
+            isDragging = false;
+            const dx = e.touches[0].clientX - e.touches[1].clientX;
+            const dy = e.touches[0].clientY - e.touches[1].clientY;
+            pinchStartDist = Math.hypot(dx, dy);
+            pinchStartCamDist = distance;
+          }
+        }, { passive: true });
+
+        dom.addEventListener("touchmove", (e) => {
+          if (e.touches.length === 1 && isDragging) {
+            const cx = e.touches[0].clientX;
+            const cy = e.touches[0].clientY;
+            const dx = cx - lastX;
+            const dy = cy - lastY;
+            lastX = cx;
+            lastY = cy;
+
+            yaw -= dx * 0.0085;
+            pitch = Math.max(MIN_PITCH, Math.min(MAX_PITCH, pitch + dy * 0.007));
+            updateCamera();
+          } else if (e.touches.length === 2 && pinchStartDist > 0) {
+            const dx = e.touches[0].clientX - e.touches[1].clientX;
+            const dy = e.touches[0].clientY - e.touches[1].clientY;
+            const distNow = Math.hypot(dx, dy);
+            const scale = pinchStartDist / Math.max(10, distNow);
+            setZoomDistance(pinchStartCamDist * scale);
+          }
+        }, { passive: true });
+
+        dom.addEventListener("touchend", (e) => {
+          if (e.touches.length === 0) {
+            isDragging = false;
+            pinchStartDist = 0;
+          } else if (e.touches.length === 1) {
+            lastX = e.touches[0].clientX;
+            lastY = e.touches[0].clientY;
+            isDragging = true;
+          }
+        }, { passive: true });
+
+        // Botones ZOOM y ROTAR
+        const btnZoomIn = document.getElementById("btn-zoom-in");
+        const btnZoomOut = document.getElementById("btn-zoom-out");
+        const btnZoomReset = document.getElementById("btn-zoom-reset");
+        const btnRotate = document.getElementById("btn-rotate");
+
+        btnZoomIn.addEventListener("click", () => {
+          setZoomDistance(distance - 0.55);
+        });
+
+        btnZoomOut.addEventListener("click", () => {
+          setZoomDistance(distance + 0.55);
+        });
+
+        btnZoomReset.addEventListener("click", () => {
+          yaw = DEFAULT_YAW;
+          pitch = DEFAULT_PITCH;
+          distance = DEFAULT_DIST;
+          updateCamera();
+        });
+
+        btnRotate.addEventListener("click", () => {
+          autoRotate = !autoRotate;
+          btnRotate.classList.toggle("active", autoRotate);
+        });
+
+        window.addEventListener("resize", () => {
+          camera.aspect = window.innerWidth / window.innerHeight;
+          camera.updateProjectionMatrix();
+          renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        updateCamera();
+
+        // Bucle suave: movimiento ambiental de carretera recta y giro de ruedas
+        let prevTime = performance.now();
+        const ambientSpeed = 14; // unidades/seg de avance sobre la carretera recta
+        const wheelRadius = 0.35;
+
+        function animate(now) {
+          requestAnimationFrame(animate);
+          const dt = Math.min(0.05, (now - prevTime) / 1000);
+          prevTime = now;
+
+          // Avance continuo de la textura de la carretera recta
+          asphaltTex.offset.y -= (ambientSpeed * dt) / 7.82;
+
+          // Giro sincronizado de ambas ruedas
+          const angularDelta = (ambientSpeed * dt) / wheelRadius;
+          frontWheel.spin.rotation.x += angularDelta;
+          rearWheel.spin.rotation.x += angularDelta;
+
+          // Micro-vibración sutil de rodadura sobre el asfalto
+          const t = now * 0.001;
+          bikeGroup.position.y = Math.sin(t * 9.5) * 0.0025;
+          bikeGroup.rotation.z = Math.sin(t * 2.1) * 0.004;
+
+          if (autoRotate) {
+            yaw += dt * 0.55;
+            updateCamera();
+          }
+
+          renderer.render(scene, camera);
+        }
+
+        requestAnimationFrame(animate);
+      }
+
+      loadThreeSequential(0);
+    })();
+  </script>
+</body>
+</html>
