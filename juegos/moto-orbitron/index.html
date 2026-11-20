@@ -2,9 +2,29 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Moto Autopista 3D — Calidad Orbitron</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>PROTOTIPO ORBITRON — Edición Completa Multi-Pantalla</title>
   <style>
+    :root {
+      --bronze: #c2926e;
+      --bronze-light: #e6c2a5;
+      --panel-bg: rgba(20, 22, 27, 0.72);
+      --panel-solid: rgba(18, 20, 25, 0.94);
+      --border-subtle: rgba(255, 255, 255, 0.14);
+      --border-bronze: rgba(194, 146, 110, 0.55);
+      --text-main: #f3f4f6;
+      --text-dim: #cbd5e1;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-left: env(safe-area-inset-left, 0px);
+      --safe-right: env(safe-area-inset-right, 0px);
+      --hud-title-size: clamp(12px, 1.35vw, 22px);
+      --hud-sub-size: clamp(10px, 0.95vw, 15px);
+      --btn-font: clamp(11px, 0.95vw, 16px);
+      --btn-pad-y: clamp(7px, 0.75vh, 13px);
+      --btn-pad-x: clamp(10px, 1.1vw, 18px);
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
@@ -17,9 +37,9 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background: #474a50;
+      background: #2f333a;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      color: #f3f4f6;
+      color: var(--text-main);
       touch-action: none;
     }
 
@@ -37,139 +57,454 @@
       height: 100%;
     }
 
-    /* HUD minimalista en esquina superior izquierda */
-    .hud-badge {
+    /* Foco visible para control remoto de TV y navegación por teclado */
+    button:focus-visible, [tabindex]:focus-visible {
+      outline: 3px solid var(--bronze-light);
+      outline-offset: 2px;
+      box-shadow: 0 0 0 5px rgba(194, 146, 110, 0.35);
+    }
+
+    /* Barra superior de progreso del tramo */
+    .track-progress-wrap {
       position: fixed;
-      top: 16px;
-      left: 16px;
-      z-index: 10;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: clamp(5px, 0.65vh, 9px);
+      background: rgba(15, 17, 21, 0.65);
+      z-index: 25;
       pointer-events: none;
-      padding: 10px 14px 10px 12px;
-      background: rgba(24, 26, 30, 0.56);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      border-left: 3px solid #c2926e;
-      border-radius: 0 8px 8px 0;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+
+    .track-progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #9f704d, #e4be9e);
+      box-shadow: 0 0 12px rgba(228, 190, 158, 0.6);
+      transition: width 0.08s linear;
+    }
+
+    .cp-marker {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: rgba(255, 255, 255, 0.65);
+    }
+
+    /* HUD Superior */
+    .top-bar {
+      position: fixed;
+      top: calc(12px + var(--safe-top));
+      left: calc(14px + var(--safe-left));
+      right: calc(14px + var(--safe-right));
+      z-index: 15;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .hud-badge {
+      pointer-events: auto;
+      padding: clamp(8px, 0.9vh, 14px) clamp(12px, 1.2vw, 20px);
+      background: var(--panel-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-left: 3px solid var(--bronze);
+      border-radius: 0 10px 10px 0;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+      max-width: min(46vw, 440px);
     }
 
     .hud-title {
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 0.12em;
+      font-size: var(--hud-title-size);
+      font-weight: 800;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
       color: #f9fafb;
-      line-height: 1.25;
+      line-height: 1.2;
     }
 
     .hud-sub {
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 0.06em;
-      color: #d6b296;
-      margin-top: 2px;
-    }
-
-    /* Selector sutil de acabado Orbitron arriba a la derecha */
-    .finish-bar {
-      position: fixed;
-      top: 16px;
-      right: 16px;
-      z-index: 10;
-      display: flex;
-      gap: 6px;
-      background: rgba(24, 26, 30, 0.56);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      padding: 5px;
-      border-radius: 10px;
-      border: 1px solid rgba(255, 255, 255, 0.09);
-    }
-
-    .finish-btn {
-      border: none;
-      background: transparent;
-      color: #d1d5db;
-      font-size: 11px;
+      font-size: var(--hud-sub-size);
       font-weight: 600;
-      letter-spacing: 0.04em;
-      padding: 6px 10px;
-      border-radius: 7px;
-      cursor: pointer;
-      transition: background 0.18s ease, color 0.18s ease;
+      letter-spacing: 0.05em;
+      color: var(--bronze-light);
+      margin-top: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .finish-btn.active {
-      background: rgba(194, 146, 110, 0.28);
-      color: #f7dec8;
-      box-shadow: inset 0 0 0 1px rgba(214, 178, 150, 0.45);
-    }
-
-    /* Controles inferiores: ZOOM izquierda, ROTAR derecha */
-    .bottom-controls {
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: 18px;
-      z-index: 10;
+    /* Telemetría central */
+    .telemetry-strip {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0 18px;
-      pointer-events: none;
-    }
-
-    .ctrl-group {
-      display: flex;
-      gap: 8px;
+      gap: clamp(8px, 1vw, 18px);
+      background: var(--panel-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: clamp(7px, 0.8vh, 13px) clamp(12px, 1.3vw, 22px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
       pointer-events: auto;
     }
 
-    .ctrl-btn {
-      appearance: none;
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      background: rgba(24, 26, 30, 0.64);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      color: #f3f4f6;
-      border-radius: 12px;
-      padding: 10px 14px;
-      font-size: 12px;
+    .tele-cell {
+      text-align: center;
+      min-width: clamp(54px, 5vw, 88px);
+    }
+
+    .tele-label {
+      font-size: clamp(9px, 0.72vw, 12px);
       font-weight: 700;
       letter-spacing: 0.08em;
+      color: #9ca3af;
+      text-transform: uppercase;
+    }
+
+    .tele-val {
+      font-size: clamp(13px, 1.3vw, 22px);
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      color: #f8fafc;
+      margin-top: 1px;
+    }
+
+    .tele-val.accent {
+      color: var(--bronze-light);
+    }
+
+    /* Acciones superiores derechas */
+    .top-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: clamp(5px, 0.5vw, 9px);
+      pointer-events: auto;
+    }
+
+    .ui-btn {
+      appearance: none;
+      border: 1px solid var(--border-subtle);
+      background: var(--panel-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      color: var(--text-main);
+      border-radius: 10px;
+      padding: var(--btn-pad-y) var(--btn-pad-x);
+      font-size: var(--btn-font);
+      font-weight: 700;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 6px;
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
-      transition: transform 0.12s ease, background 0.18s ease, border-color 0.18s ease;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+      transition: transform 0.12s ease, background 0.16s ease, border-color 0.16s ease;
     }
 
-    .ctrl-btn:active {
+    .ui-btn:active {
       transform: scale(0.96);
     }
 
-    .ctrl-btn.active {
+    .ui-btn.primary {
+      background: linear-gradient(135deg, rgba(194, 146, 110, 0.42), rgba(145, 102, 72, 0.48));
+      border-color: var(--border-bronze);
+      color: #fff5ec;
+    }
+
+    .ui-btn.active {
       background: rgba(194, 146, 110, 0.34);
-      border-color: rgba(224, 185, 154, 0.65);
-      color: #fff3e8;
+      border-color: var(--border-bronze);
+      color: #fff4ea;
     }
 
-    .zoom-step {
-      padding: 10px 12px;
-      min-width: 40px;
+    .ui-btn.danger {
+      border-color: rgba(239, 68, 68, 0.45);
+      color: #fecaca;
+    }
+
+    /* Banner flotante de eventos (roce, choque, checkpoint) */
+    #toast-banner {
+      position: fixed;
+      top: calc(76px + var(--safe-top));
+      left: 50%;
+      transform: translateX(-50%) translateY(-8px);
+      z-index: 18;
+      padding: clamp(7px, 0.8vh, 12px) clamp(14px, 1.5vw, 24px);
+      border-radius: 999px;
+      font-size: clamp(11px, 1vw, 16px);
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: rgba(20, 23, 28, 0.88);
+      border: 1px solid var(--border-bronze);
+      color: #fff4ea;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      white-space: nowrap;
+    }
+
+    #toast-banner.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    #toast-banner.good {
+      border-color: rgba(52, 211, 153, 0.7);
+      color: #a7f3d0;
+    }
+
+    #toast-banner.bad {
+      border-color: rgba(248, 113, 113, 0.75);
+      color: #fecaca;
+    }
+
+    /* Controles inferiores */
+    .bottom-hud {
+      position: fixed;
+      left: calc(14px + var(--safe-left));
+      right: calc(14px + var(--safe-right));
+      bottom: calc(14px + var(--safe-bottom));
+      z-index: 14;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      pointer-events: none;
+      gap: 12px;
+    }
+
+    .control-cluster {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: auto;
+    }
+
+    .control-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .drive-btn {
+      width: clamp(54px, 6.2vw, 84px);
+      height: clamp(50px, 5.8vh, 76px);
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(20, 22, 27, 0.68);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: #f8fafc;
+      font-size: clamp(16px, 1.6vw, 24px);
+      font-weight: 800;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
     }
 
-    /* Mensaje de respaldo si WebGL no está disponible */
+    .drive-btn span {
+      font-size: clamp(8px, 0.65vw, 11px);
+      letter-spacing: 0.08em;
+      color: #cbd5e1;
+      margin-top: 2px;
+    }
+
+    .drive-btn.pressed, .drive-btn:active {
+      background: rgba(194, 146, 110, 0.42);
+      border-color: var(--bronze-light);
+      transform: scale(0.95);
+    }
+
+    /* En pantallas grandes / Smart TV ocultamos pedales táctiles si no se fuerzan */
+    body.tv-mode .touch-only {
+      display: none !important;
+    }
+
+    /* Modales (Garaje, Historia, Pausa, Resultados) */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      background: rgba(10, 12, 16, 0.68);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: clamp(14px, 2.5vw, 36px);
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: clamp(360px, 68vw, 880px);
+      max-height: 88vh;
+      overflow-y: auto;
+      background: var(--panel-solid);
+      border: 1px solid var(--border-bronze);
+      border-radius: 18px;
+      padding: clamp(18px, 2.4vw, 34px);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+
+    .modal-title {
+      font-size: clamp(16px, 1.7vw, 26px);
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--bronze-light);
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .option-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 13px;
+      padding: 14px;
+      text-align: left;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: border-color 0.16s ease, background 0.16s ease;
+    }
+
+    .option-card.selected {
+      background: rgba(194, 146, 110, 0.2);
+      border-color: var(--bronze-light);
+    }
+
+    .option-card.locked {
+      opacity: 0.52;
+    }
+
+    .option-card h3 {
+      font-size: clamp(13px, 1.15vw, 18px);
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .option-card p {
+      font-size: clamp(11px, 0.9vw, 14px);
+      color: var(--text-dim);
+      line-height: 1.4;
+    }
+
+    .badge-pill {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      background: rgba(194, 146, 110, 0.25);
+      color: var(--bronze-light);
+    }
+
+    .stat-bar-row {
+      margin-top: 8px;
+    }
+
+    .stat-bar-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #cbd5e1;
+      margin-bottom: 3px;
+    }
+
+    .stat-bar-track {
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.1);
+      overflow: hidden;
+    }
+
+    .stat-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #a67754, #e7c3a4);
+    }
+
+    .finish-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 12px 0 18px;
+    }
+
+    .modal-footer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .summary-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px;
+      margin: 14px 0;
+    }
+
+    .summary-box {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .summary-box .k {
+      font-size: 11px;
+      color: #9ca3af;
+      text-transform: uppercase;
+    }
+
+    .summary-box .v {
+      font-size: clamp(16px, 1.5vw, 24px);
+      font-weight: 800;
+      color: var(--bronze-light);
+      margin-top: 3px;
+    }
+
     #fallback-banner {
       display: none;
       position: fixed;
       inset: 0;
-      z-index: 30;
-      background: #3a3d42;
-      color: #f3f4f6;
+      z-index: 50;
+      background: #25282e;
       align-items: center;
       justify-content: center;
       padding: 24px;
@@ -177,1004 +512,1503 @@
     }
 
     .fallback-card {
-      max-width: 420px;
-      background: rgba(22, 24, 28, 0.9);
-      border: 1px solid rgba(194, 146, 110, 0.45);
+      max-width: 440px;
+      background: rgba(18, 20, 25, 0.95);
+      border: 1px solid var(--border-bronze);
       border-radius: 14px;
       padding: 24px;
-      line-height: 1.5;
     }
 
-    .fallback-card h2 {
-      font-size: 16px;
-      margin-bottom: 8px;
-      color: #e2b896;
-    }
-
-    .fallback-card p {
-      font-size: 13px;
-      color: #d1d5db;
-    }
-
-    @media (max-width: 560px) {
+    @media (max-width: 720px) {
+      .top-bar {
+        flex-wrap: wrap;
+      }
+      .telemetry-strip {
+        order: 3;
+        width: 100%;
+        justify-content: space-around;
+      }
       .hud-badge {
-        top: 12px;
-        left: 12px;
-        padding: 8px 11px 8px 10px;
-      }
-      .hud-title {
-        font-size: 11.5px;
-      }
-      .hud-sub {
-        font-size: 10px;
-      }
-      .finish-bar {
-        top: 12px;
-        right: 12px;
-        padding: 4px;
-        gap: 3px;
-      }
-      .finish-btn {
-        font-size: 10px;
-        padding: 5px 7px;
-      }
-      .bottom-controls {
-        bottom: 14px;
-        padding: 0 12px;
-      }
-      .ctrl-btn {
-        padding: 9px 11px;
-        font-size: 11px;
-        border-radius: 10px;
-      }
-      .zoom-step {
-        padding: 9px 10px;
-        min-width: 34px;
+        max-width: 56vw;
       }
     }
   </style>
 </head>
 <body>
+  <div class="track-progress-wrap" aria-hidden="true">
+    <div id="track-progress-fill" class="track-progress-fill"></div>
+    <div class="cp-marker" style="left: 33.33%;"></div>
+    <div class="cp-marker" style="left: 66.66%;"></div>
+  </div>
+
   <div id="canvas-wrap"></div>
 
-  <div class="hud-badge">
-    <div class="hud-title">PROTOTIPO V-04</div>
-    <div class="hud-sub">CALIDAD ORBITRON · GRAFITO / BRONCE</div>
-  </div>
-
-  <div class="finish-bar" role="group" aria-label="Acabado Orbitron">
-    <button class="finish-btn active" data-preset="orbitron" type="button">ORBITRON</button>
-    <button class="finish-btn" data-preset="titanio" type="button">TITANIO</button>
-    <button class="finish-btn" data-preset="cromo" type="button">CROMO MATE</button>
-  </div>
-
-  <div class="bottom-controls">
-    <div class="ctrl-group">
-      <button id="btn-zoom-in" class="ctrl-btn zoom-step" type="button" title="Acercar" aria-label="Acercar">＋</button>
-      <button id="btn-zoom-out" class="ctrl-btn zoom-step" type="button" title="Alejar" aria-label="Alejar">－</button>
-      <button id="btn-zoom-reset" class="ctrl-btn" type="button" title="Restablecer zoom y vista">🔍 ZOOM</button>
+  <header class="top-bar">
+    <div class="hud-badge">
+      <div id="hud-vehicle-title" class="hud-title">PROTOTIPO V-04</div>
+      <div id="hud-track-sub" class="hud-sub">PISTA 01 · RECTA INDUSTRIAL</div>
     </div>
 
-    <div class="ctrl-group">
-      <button id="btn-rotate" class="ctrl-btn" type="button" title="Rotación orbital automática">⟳ ROTAR</button>
+    <div class="telemetry-strip" aria-label="Telemetría de carrera">
+      <div class="tele-cell">
+        <div class="tele-label">TIEMPO</div>
+        <div id="tele-time" class="tele-val accent">00:00.00</div>
+      </div>
+      <div class="tele-cell">
+        <div class="tele-label">VELOCIDAD</div>
+        <div id="tele-speed" class="tele-val">0 KM/H</div>
+      </div>
+      <div class="tele-cell">
+        <div class="tele-label">TRAMO</div>
+        <div id="tele-dist" class="tele-val">0 / 600M</div>
+      </div>
+      <div class="tele-cell">
+        <div class="tele-label">RÉCORD</div>
+        <div id="tele-best" class="tele-val">--:--.--</div>
+      </div>
+    </div>
+
+    <div class="top-actions">
+      <button id="btn-garage" class="ui-btn primary" type="button" title="Garaje Orbitron (G)">GARAJE</button>
+      <button id="btn-story" class="ui-btn" type="button" title="Campaña de Historia (H)">HISTORIA</button>
+      <button id="btn-mute" class="ui-btn" type="button" title="Silenciar / Activar audio (M)">AUDIO</button>
+      <button id="btn-fullscreen" class="ui-btn" type="button" title="Pantalla completa (F)">PANTALLA</button>
+      <button id="btn-pause" class="ui-btn" type="button" title="Pausa y opciones (P / Esc)">PAUSA</button>
+    </div>
+  </header>
+
+  <div id="toast-banner" role="status" aria-live="polite"></div>
+
+  <div class="bottom-hud">
+    <div class="control-cluster">
+      <div class="control-row">
+        <button id="btn-zoom-in" class="ui-btn" type="button" aria-label="Acercar cámara">＋</button>
+        <button id="btn-zoom-out" class="ui-btn" type="button" aria-label="Alejar cámara">－</button>
+        <button id="btn-cam-reset" class="ui-btn" type="button" title="Centrar cámara (C)">CÁMARA</button>
+        <button id="btn-auto-rotate" class="ui-btn" type="button">ROTAR</button>
+      </div>
+      <div class="control-row touch-only">
+        <button id="btn-left" class="drive-btn" type="button" aria-label="Girar izquierda">◀<span>IZQ</span></button>
+        <button id="btn-right" class="drive-btn" type="button" aria-label="Girar derecha">▶<span>DER</span></button>
+      </div>
+    </div>
+
+    <div class="control-cluster touch-only">
+      <div class="control-row">
+        <button id="btn-brake" class="drive-btn" type="button" aria-label="Frenar">▼<span>FRENO</span></button>
+        <button id="btn-gas" class="drive-btn" type="button" aria-label="Acelerar">▲<span>ACELERAR</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Garaje y Pistas -->
+  <div id="modal-garage" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="garage-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 id="garage-title" class="modal-title">GARAJE ORBITRON · VEHÍCULOS Y PISTAS</h2>
+        <button id="close-garage" class="ui-btn" type="button">CERRAR</button>
+      </div>
+
+      <p style="font-size: 12px; color: #cbd5e1; margin-bottom: 10px;">1. SELECCIONÁ VEHÍCULO (VISTA 3D EN VIVO):</p>
+      <div id="garage-vehicles" class="grid-3"></div>
+
+      <p style="font-size: 12px; color: #cbd5e1; margin-bottom: 6px;">2. ACABADO METÁLICO ORBITRON:</p>
+      <div id="garage-finishes" class="finish-row"></div>
+
+      <p style="font-size: 12px; color: #cbd5e1; margin: 10px 0 8px;">3. SELECCIONÁ PISTA DE CONTRARRELOJ:</p>
+      <div id="garage-tracks" class="grid-3"></div>
+
+      <div class="modal-footer">
+        <button id="btn-unlock-all" class="ui-btn" type="button">DESBLOQUEAR TODO</button>
+        <button id="btn-start-from-garage" class="ui-btn primary" type="button">SALIR A PISTA ▶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Historia -->
+  <div id="modal-story" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="story-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 id="story-title" class="modal-title">CAMPAÑA ORBITRON · CAPÍTULOS</h2>
+        <button id="close-story" class="ui-btn" type="button">CERRAR</button>
+      </div>
+      <div id="story-chapters" class="grid-3"></div>
+      <div class="modal-footer">
+        <span id="story-progress-text" style="font-size: 12px; color: #cbd5e1;"></span>
+        <button id="btn-play-chapter" class="ui-btn primary" type="button">INICIAR CAPÍTULO ▶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Pausa y Controles Multi-Pantalla -->
+  <div id="modal-pause" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="pause-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 id="pause-title" class="modal-title">PAUSA · OPCIONES Y CONTROLES</h2>
+        <button id="close-pause" class="ui-btn primary" type="button">CONTINUAR ▶</button>
+      </div>
+
+      <div class="summary-stats">
+        <div class="summary-box">
+          <div class="k">CARRERAS COMPLETADAS</div>
+          <div id="stat-runs" class="v">0</div>
+        </div>
+        <div class="summary-box">
+          <div class="k">ROCES CERCANOS (-0.4S)</div>
+          <div id="stat-nearmiss" class="v">0</div>
+        </div>
+        <div class="summary-box">
+          <div class="k">PENALIZACIONES (+1.5S)</div>
+          <div id="stat-penalties" class="v">0</div>
+        </div>
+      </div>
+
+      <p style="font-size: 13px; color: #e2e8f0; line-height: 1.55; margin: 10px 0;">
+        <strong>Móvil / Tablet:</strong> Botones táctiles inferiores + arrastre de un dedo para rotar cámara 360° y pellizco para zoom.<br />
+        <strong>PC / Teclado:</strong> <code>WASD</code> o <code>Flechas</code> para conducir · <code>G</code> Garaje · <code>H</code> Historia · <code>R</code> Reiniciar · <code>C</code> Cámara · <code>M</code> Audio · <code>F</code> Pantalla completa.<br />
+        <strong>Smart TV / Control Remoto:</strong> Cruceta <code>Izquierda / Derecha</code> para esquivar y <code>Arriba / OK</code> para acelerar y navegar menús.
+      </p>
+
+      <div class="modal-footer">
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button id="btn-toggle-touch" class="ui-btn" type="button">CONTROLES TÁCTILES</button>
+          <button id="btn-reset-save" class="ui-btn danger" type="button">BORRAR PROGRESO</button>
+        </div>
+        <button id="btn-restart-run" class="ui-btn primary" type="button">REINICIAR TRAMO (R)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Resultado de Meta -->
+  <div id="modal-finish" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="finish-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 id="finish-title" class="modal-title">META ALCANZADA</h2>
+        <span id="finish-badge" class="badge-pill">OBJETIVO CUMPLIDO</span>
+      </div>
+
+      <div class="summary-stats">
+        <div class="summary-box">
+          <div class="k">TIEMPO FINAL</div>
+          <div id="res-time" class="v">00:00.00</div>
+        </div>
+        <div class="summary-box">
+          <div class="k">TIEMPO OBJETIVO</div>
+          <div id="res-target" class="v">00:24.00</div>
+        </div>
+        <div class="summary-box">
+          <div class="k">MEJOR RÉCORD</div>
+          <div id="res-best" class="v">00:00.00</div>
+        </div>
+      </div>
+
+      <p id="res-story-note" style="font-size: 13px; color: #e6c2a5; margin: 8px 0 4px;"></p>
+
+      <div class="modal-footer">
+        <button id="btn-finish-garage" class="ui-btn" type="button">IR AL GARAJE</button>
+        <button id="btn-finish-next" class="ui-btn primary" type="button">SIGUIENTE / REPETIR ▶</button>
+      </div>
     </div>
   </div>
 
   <div id="fallback-banner">
     <div class="fallback-card">
-      <h2>WebGL no disponible en este navegador</h2>
-      <p>Para ver la escena 3D en calidad Orbitron, habilitá la aceleración por hardware o probá en un navegador compatible con WebGL.</p>
+      <h2 style="color: #e6c2a5; margin-bottom: 8px;">WebGL no disponible</h2>
+      <p style="font-size: 13px; color: #cbd5e1;">Activá la aceleración por hardware en tu navegador o abrí esta página en un dispositivo compatible con WebGL.</p>
     </div>
   </div>
 
   <script>
     (function () {
-      const CDN_SOURCES = [
+      const STORAGE_KEY = "orbitron_complete_v1";
+      const CDN_URLS = [
         "https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js",
         "https://unpkg.com/three@0.128.0/build/three.min.js"
       ];
 
-      function showFallback(msg) {
-        const banner = document.getElementById("fallback-banner");
-        if (banner) {
-          if (msg) {
-            const p = banner.querySelector("p");
-            if (p) p.textContent = msg;
-          }
-          banner.style.display = "flex";
-        }
+      function showFallback(text) {
+        const el = document.getElementById("fallback-banner");
+        if (!el) return;
+        if (text) el.querySelector("p").textContent = text;
+        el.style.display = "flex";
       }
 
-      function loadThreeSequential(index) {
+      function loadThree(idx) {
         if (window.THREE) {
-          initScene();
+          startApp();
           return;
         }
-        if (index >= CDN_SOURCES.length) {
-          showFallback("No se pudo cargar Three.js desde los servidores CDN. Verificá tu conexión a internet e intentá recargar.");
+        if (idx >= CDN_URLS.length) {
+          showFallback("No se pudo cargar el motor 3D Three.js desde CDN. Verificá tu conexión e intentá nuevamente.");
           return;
         }
-        const script = document.createElement("script");
-        script.src = CDN_SOURCES[index];
-        script.async = true;
-        script.onload = function () {
-          if (window.THREE) {
-            initScene();
-          } else {
-            loadThreeSequential(index + 1);
-          }
-        };
-        script.onerror = function () {
-          loadThreeSequential(index + 1);
-        };
-        document.head.appendChild(script);
+        const s = document.createElement("script");
+        s.src = CDN_URLS[idx];
+        s.async = true;
+        s.onload = () => (window.THREE ? startApp() : loadThree(idx + 1));
+        s.onerror = () => loadThree(idx + 1);
+        document.head.appendChild(s);
       }
 
-      function initScene() {
+      function startApp() {
         const THREE = window.THREE;
-        const container = document.getElementById("canvas-wrap");
 
-        const renderer = new THREE.WebGLRenderer({
-          antialias: true,
-          powerPreference: "high-performance"
-        });
+        // Datos maestros de Vehículos, Acabados, Pistas y Capítulos
+        const VEHICLES = {
+          moto: {
+            id: "moto",
+            name: "PROTOTIPO V-04",
+            subtitle: "Moto Naked Orbitron",
+            maxSpeed: 54.0, // ~195 km/h
+            accel: 28.0,
+            steerSpeed: 10.5,
+            halfWidth: 0.42,
+            halfLength: 1.05,
+            nearMissBonus: 0.4,
+            camDist: 3.6,
+            camHeight: 0.72,
+            stats: { vel: 88, acc: 94, man: 96 },
+            unlockedByDefault: true,
+            unlockHint: "Disponible desde el inicio"
+          },
+          coupe: {
+            id: "coupe",
+            name: "INTERCEPTOR GT-04",
+            subtitle: "Coupé Aerodinámico Orbitron",
+            maxSpeed: 59.0, // ~212 km/h
+            accel: 25.0,
+            steerSpeed: 9.2,
+            halfWidth: 0.88,
+            halfLength: 1.85,
+            nearMissBonus: 0.4,
+            camDist: 4.6,
+            camHeight: 0.82,
+            stats: { vel: 96, acc: 86, man: 88 },
+            unlockedByDefault: true,
+            unlockHint: "Disponible desde el inicio"
+          },
+          bus: {
+            id: "bus",
+            name: "AUTOBÚS B-04 ORBITRON",
+            subtitle: "Transporte Pesado Blindado",
+            maxSpeed: 46.8, // ~168 km/h
+            accel: 19.5,
+            steerSpeed: 7.4,
+            halfWidth: 1.12,
+            halfLength: 3.45,
+            nearMissBonus: 0.6,
+            camDist: 6.8,
+            camHeight: 1.35,
+            stats: { vel: 74, acc: 70, man: 74 },
+            unlockedByDefault: false,
+            unlockHint: "Completa 1 tramo o el Capítulo I"
+          }
+        };
 
-        if (!renderer.getContext()) {
-          showFallback("No se pudo inicializar el contexto gráfico WebGL en este dispositivo.");
-          return;
+        const FINISHES = {
+          grafito: {
+            id: "grafito",
+            label: "GRAFITO",
+            body: 0x4a4e56,
+            metalness: 0.45,
+            roughness: 0.44,
+            accent: 0xc2926e
+          },
+          titanio: {
+            id: "titanio",
+            label: "TITANIO",
+            body: 0x828892,
+            metalness: 0.65,
+            roughness: 0.34,
+            accent: 0xcda07c
+          },
+          cromo: {
+            id: "cromo",
+            label: "CROMO OSCURO",
+            body: 0x32353b,
+            metalness: 0.58,
+            roughness: 0.38,
+            accent: 0xb88662
+          },
+          amarillo: {
+            id: "amarillo",
+            label: "AMARILLO METAL",
+            body: 0xd9a126,
+            metalness: 0.52,
+            roughness: 0.36,
+            accent: 0x9b6b46
+          }
+        };
+
+        const TRACKS = {
+          industrial: {
+            id: "industrial",
+            name: "PISTA 01 · RECTA INDUSTRIAL",
+            length: 600,
+            targetTime: 24.0,
+            sky: 0x99abba,
+            fogDensity: 0.0042,
+            shoulder: 0x737980,
+            barrier: 0x8b9198,
+            beacon: 0xc2926e,
+            curveAmp: 1.35,
+            curveFreq: 0.011,
+            trafficCount: 7,
+            coneCount: 6
+          },
+          cobre: {
+            id: "cobre",
+            name: "PISTA 02 · AUTOPISTA DEL COBRE",
+            length: 700,
+            targetTime: 27.0,
+            sky: 0xc89b78,
+            fogDensity: 0.004,
+            shoulder: 0x8a6d56,
+            barrier: 0x9c7b60,
+            beacon: 0xf4b37a,
+            curveAmp: 1.85,
+            curveFreq: 0.013,
+            trafficCount: 9,
+            coneCount: 8
+          },
+          nocturno: {
+            id: "nocturno",
+            name: "PISTA 03 · CORREDOR NOCTURNO",
+            length: 800,
+            targetTime: 30.0,
+            sky: 0x1c263b,
+            fogDensity: 0.0048,
+            shoulder: 0x262d3d,
+            barrier: 0x3b4459,
+            beacon: 0xffb870,
+            curveAmp: 2.2,
+            curveFreq: 0.014,
+            trafficCount: 11,
+            coneCount: 10
+          }
+        };
+
+        const CHAPTERS = [
+          {
+            id: 0,
+            title: "CAPÍTULO I · CALIBRACIÓN GRIS",
+            trackId: "industrial",
+            briefing: "Superá el sector industrial de 600m en menos de 24.0s esquivando los convoyes de prueba."
+          },
+          {
+            id: 1,
+            title: "CAPÍTULO II · RUTA DEL COBRE",
+            trackId: "cobre",
+            briefing: "Atraviesa los 700m de la autopista cobriza bajo 27.0s aprovechando roces cercanos (-0.4s)."
+          },
+          {
+            id: 2,
+            title: "CAPÍTULO III · CORREDOR FINAL",
+            trackId: "nocturno",
+            briefing: "Completa los 800m del corredor nocturno Orbitron por debajo de 30.0s sin perder el control."
+          }
+        ];
+
+        // Estado persistente en localStorage
+        const defaultSave = {
+          vehicleId: "moto",
+          finishId: "grafito",
+          trackId: "industrial",
+          chapterId: 0,
+          unlockedVehicles: { moto: true, coupe: true, bus: false },
+          unlockedChapters: [true, false, false],
+          completedChapters: [false, false, false],
+          bestTimes: {},
+          runsCompleted: 0,
+          nearMissTotal: 0,
+          penaltiesTotal: 0,
+          muted: false
+        };
+
+        function loadSave() {
+          try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) return JSON.parse(JSON.stringify(defaultSave));
+            const parsed = JSON.parse(raw);
+            return Object.assign(JSON.parse(JSON.stringify(defaultSave)), parsed);
+          } catch (_) {
+            return JSON.parse(JSON.stringify(defaultSave));
+          }
         }
 
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+        let save = loadSave();
+        function persistSave() {
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(save));
+          } catch (_) {}
+        }
+
+        // Detección Smart TV / Pantalla grande
+        if (window.innerWidth >= 1600) {
+          document.body.classList.add("tv-mode");
+        }
+
+        // Web Audio sintetizado ligero (motor por vehículo + efectos)
+        let audioCtx = null;
+        let engineOsc = null;
+        let engineGain = null;
+
+        function ensureAudio() {
+          if (save.muted) return;
+          if (!audioCtx) {
+            const AC = window.AudioContext || window.webkitAudioContext;
+            if (!AC) return;
+            audioCtx = new AC();
+            engineOsc = audioCtx.createOscillator();
+            engineGain = audioCtx.createGain();
+            engineOsc.type = "sawtooth";
+            engineOsc.frequency.value = 55;
+            engineGain.gain.value = 0.0;
+            engineOsc.connect(engineGain);
+            engineGain.connect(audioCtx.destination);
+            engineOsc.start();
+          }
+          if (audioCtx.state === "suspended") {
+            audioCtx.resume().catch(() => {});
+          }
+        }
+
+        function playTone(freq, dur, type = "triangle", vol = 0.09) {
+          if (save.muted) return;
+          ensureAudio();
+          if (!audioCtx) return;
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+          gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + dur);
+        }
+
+        // Renderizador Three.js con pixelRatio adaptativo
+        const wrap = document.getElementById("canvas-wrap");
+        const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+        if (!renderer.getContext()) {
+          showFallback("No se pudo iniciar WebGL en este navegador.");
+          return;
+        }
+        let currentPixelRatio = Math.min(window.devicePixelRatio || 1, window.innerWidth >= 1920 ? 1.5 : 2);
+        renderer.setPixelRatio(currentPixelRatio);
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.06;
+        renderer.toneMappingExposure = 1.08;
         renderer.outputEncoding = THREE.sRGBEncoding;
-        container.appendChild(renderer.domElement);
+        wrap.appendChild(renderer.domElement);
 
-        // Escena y carretera recta diurna limpia
-        const SKY_COLOR = 0x9fb2c4;
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(SKY_COLOR);
-        scene.fog = new THREE.FogExp2(SKY_COLOR, 0.0042);
+        const camera = new THREE.PerspectiveCamera(44, window.innerWidth / window.innerHeight, 0.1, 340);
 
-        const camera = new THREE.PerspectiveCamera(
-          42,
-          window.innerWidth / window.innerHeight,
-          0.1,
-          360
-        );
-
-        // Mapa de entorno procedural para reflejos metálicos y de bronce limpios
-        function createOrbitronEnvMap() {
-          const w = 512;
-          const h = 256;
-          const canvas = document.createElement("canvas");
-          canvas.width = w;
-          canvas.height = h;
-          const ctx = canvas.getContext("2d");
-
-          const skyGrad = ctx.createLinearGradient(0, 0, 0, h * 0.56);
-          skyGrad.addColorStop(0.0, "#6f89a3");
-          skyGrad.addColorStop(0.65, "#a9bdd0");
-          skyGrad.addColorStop(1.0, "#dce4ec");
-          ctx.fillStyle = skyGrad;
-          ctx.fillRect(0, 0, w, h * 0.56);
-
-          const roadGrad = ctx.createLinearGradient(0, h * 0.56, 0, h);
-          roadGrad.addColorStop(0.0, "#686c72");
-          roadGrad.addColorStop(0.5, "#4c4f54");
-          roadGrad.addColorStop(1.0, "#383a3e");
-          ctx.fillStyle = roadGrad;
-          ctx.fillRect(0, h * 0.56, w, h * 0.44);
-
-          // Franjas de reflexión suave para dar volumen metálico
-          ctx.fillStyle = "rgba(255, 250, 240, 0.42)";
-          ctx.fillRect(w * 0.14, h * 0.12, w * 0.24, h * 0.11);
-          ctx.fillRect(w * 0.62, h * 0.16, w * 0.22, h * 0.09);
-
-          ctx.fillStyle = "rgba(218, 174, 138, 0.28)";
-          ctx.fillRect(w * 0.36, h * 0.28, w * 0.28, h * 0.06);
-
-          const tex = new THREE.CanvasTexture(canvas);
+        // Mapa de entorno procedural Orbitron
+        function buildEnvMap() {
+          const c = document.createElement("canvas");
+          c.width = 256;
+          c.height = 128;
+          const ctx = c.getContext("2d");
+          const g = ctx.createLinearGradient(0, 0, 0, 128);
+          g.addColorStop(0, "#7f99b2");
+          g.addColorStop(0.5, "#dce4ec");
+          g.addColorStop(0.52, "#595d64");
+          g.addColorStop(1, "#2f3238");
+          ctx.fillStyle = g;
+          ctx.fillRect(0, 0, 256, 128);
+          ctx.fillStyle = "rgba(255,248,236,0.45)";
+          ctx.fillRect(30, 16, 70, 14);
+          ctx.fillRect(155, 22, 65, 12);
+          const tex = new THREE.CanvasTexture(c);
           tex.mapping = THREE.EquirectangularReflectionMapping;
           tex.encoding = THREE.sRGBEncoding;
           const pmrem = new THREE.PMREMGenerator(renderer);
-          pmrem.compileEquirectangularShader();
           const rt = pmrem.fromEquirectangular(tex);
           tex.dispose();
           pmrem.dispose();
           return rt.texture;
         }
+        scene.environment = buildEnvMap();
 
-        scene.environment = createOrbitronEnvMap();
-
-        // Iluminación diurna limpia con sombra definida
-        const hemiLight = new THREE.HemisphereLight(0xd8e5f2, 0x56595f, 0.95);
-        hemiLight.position.set(0, 30, 0);
+        // Luces
+        const hemiLight = new THREE.HemisphereLight(0xe2ecf7, 0x4b4f56, 0.95);
         scene.add(hemiLight);
 
-        const keyLight = new THREE.DirectionalLight(0xfff8ee, 1.55);
-        keyLight.position.set(8, 15, 10);
-        keyLight.castShadow = true;
-        keyLight.shadow.mapSize.width = 2048;
-        keyLight.shadow.mapSize.height = 2048;
-        keyLight.shadow.camera.near = 2;
-        keyLight.shadow.camera.far = 45;
-        const d = 7.5;
-        keyLight.shadow.camera.left = -d;
-        keyLight.shadow.camera.right = d;
-        keyLight.shadow.camera.top = d;
-        keyLight.shadow.camera.bottom = -d;
-        keyLight.shadow.bias = -0.0005;
-        scene.add(keyLight);
+        const sunLight = new THREE.DirectionalLight(0xfff7eb, 1.5);
+        sunLight.position.set(10, 18, 12);
+        sunLight.castShadow = true;
+        sunLight.shadow.mapSize.width = 1024;
+        sunLight.shadow.mapSize.height = 1024;
+        sunLight.shadow.camera.near = 2;
+        sunLight.shadow.camera.far = 55;
+        sunLight.shadow.camera.left = -12;
+        sunLight.shadow.camera.right = 12;
+        sunLight.shadow.camera.top = 12;
+        sunLight.shadow.camera.bottom = -12;
+        scene.add(sunLight);
 
-        const rimLight = new THREE.DirectionalLight(0xdcb998, 0.65);
-        rimLight.position.set(-9, 7, -8);
+        const rimLight = new THREE.DirectionalLight(0xd9b391, 0.65);
+        rimLight.position.set(-10, 8, -10);
         scene.add(rimLight);
 
-        // Texturas procedurales (asfalto, cepillado Orbitron, fibra de carbono, cuero, rotor)
-        function createAsphaltTexture() {
-          const canvas = document.createElement("canvas");
-          canvas.width = 512;
-          canvas.height = 512;
-          const ctx = canvas.getContext("2d");
-
-          ctx.fillStyle = "#5c6066";
+        // Texturas procedurales Orbitron
+        function createAsphaltTex() {
+          const c = document.createElement("canvas");
+          c.width = 512;
+          c.height = 512;
+          const ctx = c.getContext("2d");
+          ctx.fillStyle = "#52565d";
           ctx.fillRect(0, 0, 512, 512);
-
-          // Grano fino de asfalto
-          for (let i = 0; i < 18000; i++) {
-            const x = Math.random() * 512;
-            const y = Math.random() * 512;
-            const v = 72 + Math.floor(Math.random() * 44);
-            ctx.fillStyle = `rgba(${v}, ${v + 1}, ${v + 3}, 0.35)`;
-            ctx.fillRect(x, y, 2, 2);
+          for (let i = 0; i < 14000; i++) {
+            const v = 68 + Math.floor(Math.random() * 40);
+            ctx.fillStyle = `rgba(${v},${v + 1},${v + 3},0.35)`;
+            ctx.fillRect(Math.random() * 512, Math.random() * 512, 2, 2);
           }
-
-          // Huella sutil de rodadura en la carretera recta
-          const trackGradL = ctx.createLinearGradient(110, 0, 175, 0);
-          trackGradL.addColorStop(0, "rgba(38,40,44,0)");
-          trackGradL.addColorStop(0.5, "rgba(38,40,44,0.22)");
-          trackGradL.addColorStop(1, "rgba(38,40,44,0)");
-          ctx.fillStyle = trackGradL;
-          ctx.fillRect(110, 0, 65, 512);
-
-          const trackGradR = ctx.createLinearGradient(337, 0, 402, 0);
-          trackGradR.addColorStop(0, "rgba(38,40,44,0)");
-          trackGradR.addColorStop(0.5, "rgba(38,40,44,0.22)");
-          trackGradR.addColorStop(1, "rgba(38,40,44,0)");
-          ctx.fillStyle = trackGradR;
-          ctx.fillRect(337, 0, 65, 512);
-
-          // Bordes blancos continuos
-          ctx.fillStyle = "#d9dde2";
-          ctx.fillRect(24, 0, 10, 512);
-          ctx.fillRect(478, 0, 10, 512);
-
-          // Línea central discontinua limpia
-          ctx.fillStyle = "#e2e6ec";
-          for (let y = 24; y < 512; y += 128) {
-            ctx.fillRect(252, y, 8, 68);
+          ctx.fillStyle = "#dfe3e8";
+          ctx.fillRect(22, 0, 10, 512);
+          ctx.fillRect(480, 0, 10, 512);
+          ctx.fillStyle = "rgba(235,239,245,0.85)";
+          for (let y = 16; y < 512; y += 128) {
+            ctx.fillRect(172, y, 6, 62);
+            ctx.fillRect(334, y, 6, 62);
           }
-
-          const tex = new THREE.CanvasTexture(canvas);
+          const tex = new THREE.CanvasTexture(c);
           tex.wrapS = THREE.RepeatWrapping;
           tex.wrapT = THREE.RepeatWrapping;
-          tex.repeat.set(1, 46);
-          tex.anisotropy = 8;
+          tex.repeat.set(1, 36);
           tex.encoding = THREE.sRGBEncoding;
           return tex;
         }
 
-        function createBrushedBumpTexture() {
-          const canvas = document.createElement("canvas");
-          canvas.width = 256;
-          canvas.height = 256;
-          const ctx = canvas.getContext("2d");
+        function createBrushedTex() {
+          const c = document.createElement("canvas");
+          c.width = 128;
+          c.height = 128;
+          const ctx = c.getContext("2d");
           ctx.fillStyle = "#808080";
-          ctx.fillRect(0, 0, 256, 256);
-
-          for (let y = 0; y < 256; y++) {
-            const alpha = 0.04 + Math.random() * 0.08;
-            ctx.fillStyle = Math.random() > 0.5 ? `rgba(255,255,255,${alpha})` : `rgba(0,0,0,${alpha})`;
-            ctx.fillRect(0, y, 256, 1);
-          }
-
-          const tex = new THREE.CanvasTexture(canvas);
-          tex.wrapS = THREE.RepeatWrapping;
-          tex.wrapT = THREE.RepeatWrapping;
-          tex.repeat.set(3, 3);
-          return tex;
-        }
-
-        function createCarbonTexture() {
-          const canvas = document.createElement("canvas");
-          canvas.width = 128;
-          canvas.height = 128;
-          const ctx = canvas.getContext("2d");
-          ctx.fillStyle = "#222428";
           ctx.fillRect(0, 0, 128, 128);
-
-          for (let y = 0; y < 128; y += 8) {
-            for (let x = 0; x < 128; x += 8) {
-              const shift = ((x + y) / 8) % 2 === 0;
-              ctx.fillStyle = shift ? "#34373e" : "#181a1d";
-              ctx.fillRect(x, y, 4, 4);
-              ctx.fillStyle = shift ? "#181a1d" : "#2d3036";
-              ctx.fillRect(x + 4, y + 4, 4, 4);
-            }
+          for (let y = 0; y < 128; y++) {
+            ctx.fillStyle = y % 2 === 0 ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)";
+            ctx.fillRect(0, y, 128, 1);
           }
-
-          const tex = new THREE.CanvasTexture(canvas);
-          tex.wrapS = THREE.RepeatWrapping;
-          tex.wrapT = THREE.RepeatWrapping;
-          tex.repeat.set(6, 6);
-          tex.encoding = THREE.sRGBEncoding;
-          return tex;
+          const t = new THREE.CanvasTexture(c);
+          t.wrapS = THREE.RepeatWrapping;
+          t.wrapT = THREE.RepeatWrapping;
+          return t;
         }
 
-        function createLeatherTexture() {
-          const canvas = document.createElement("canvas");
-          canvas.width = 128;
-          canvas.height = 128;
-          const ctx = canvas.getContext("2d");
-          ctx.fillStyle = "#3c3936";
-          ctx.fillRect(0, 0, 128, 128);
-          for (let i = 0; i < 2500; i++) {
-            const x = Math.random() * 128;
-            const y = Math.random() * 128;
-            const shade = 48 + Math.floor(Math.random() * 26);
-            ctx.fillStyle = `rgb(${shade},${shade - 2},${shade - 4})`;
-            ctx.fillRect(x, y, 2, 2);
-          }
-          const tex = new THREE.CanvasTexture(canvas);
-          tex.wrapS = THREE.RepeatWrapping;
-          tex.wrapT = THREE.RepeatWrapping;
-          tex.repeat.set(4, 4);
-          tex.encoding = THREE.sRGBEncoding;
-          return tex;
-        }
+        const asphaltTex = createAsphaltTex();
+        const brushedBump = createBrushedTex();
 
-        function createBrakeDiscTexture() {
-          const canvas = document.createElement("canvas");
-          canvas.width = 256;
-          canvas.height = 256;
-          const ctx = canvas.getContext("2d");
-          const cx = 128, cy = 128;
-
-          ctx.fillStyle = "#8a8f96";
-          ctx.beginPath();
-          ctx.arc(cx, cy, 124, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Ranuras y perforaciones
-          ctx.strokeStyle = "#484c52";
-          ctx.lineWidth = 2;
-          for (let i = 0; i < 24; i++) {
-            const a = (i / 24) * Math.PI * 2;
-            ctx.beginPath();
-            ctx.moveTo(cx + Math.cos(a) * 62, cy + Math.sin(a) * 62);
-            ctx.lineTo(cx + Math.cos(a + 0.14) * 118, cy + Math.sin(a + 0.14) * 118);
-            ctx.stroke();
-          }
-
-          ctx.fillStyle = "#3c4046";
-          for (let ring = 0; ring < 3; ring++) {
-            const r = 72 + ring * 18;
-            const count = 16;
-            for (let j = 0; j < count; j++) {
-              const a = (j / count) * Math.PI * 2 + ring * 0.15;
-              ctx.beginPath();
-              ctx.arc(cx + Math.cos(a) * r, cy + Math.sin(a) * r, 2.3, 0, Math.PI * 2);
-              ctx.fill();
-            }
-          }
-
-          ctx.fillStyle = "#2b2e33";
-          ctx.beginPath();
-          ctx.arc(cx, cy, 56, 0, Math.PI * 2);
-          ctx.fill();
-
-          const tex = new THREE.CanvasTexture(canvas);
-          tex.encoding = THREE.sRGBEncoding;
-          return tex;
-        }
-
-        const asphaltTex = createAsphaltTexture();
-        const brushedBump = createBrushedBumpTexture();
-        const carbonTex = createCarbonTexture();
-        const leatherTex = createLeatherTexture();
-        const discTex = createBrakeDiscTexture();
-
-        // Carretera recta limpia (solo carretera recta + arcenes bajos de tierra/concreto)
-        const roadGroup = new THREE.Group();
-        scene.add(roadGroup);
-
-        const roadGeo = new THREE.PlaneGeometry(11.5, 360);
-        const roadMat = new THREE.MeshStandardMaterial({
-          map: asphaltTex,
-          roughness: 0.88,
-          metalness: 0.04
-        });
-        const roadMesh = new THREE.Mesh(roadGeo, roadMat);
-        roadMesh.rotation.x = -Math.PI / 2;
-        roadMesh.receiveShadow = true;
-        roadGroup.add(roadMesh);
-
-        // Franjas laterales limpias de carretera recta (sin edificios, árboles ni tráfico)
-        const shoulderMat = new THREE.MeshStandardMaterial({
-          color: 0x7b8288,
-          roughness: 0.94,
-          metalness: 0.02
-        });
-        const leftShoulder = new THREE.Mesh(new THREE.PlaneGeometry(160, 360), shoulderMat);
-        leftShoulder.rotation.x = -Math.PI / 2;
-        leftShoulder.position.set(-85.75, -0.02, 0);
-        leftShoulder.receiveShadow = true;
-        roadGroup.add(leftShoulder);
-
-        const rightShoulder = new THREE.Mesh(new THREE.PlaneGeometry(160, 360), shoulderMat);
-        rightShoulder.rotation.x = -Math.PI / 2;
-        rightShoulder.position.set(85.75, -0.02, 0);
-        rightShoulder.receiveShadow = true;
-        roadGroup.add(rightShoulder);
-
-        // Materiales en calidad Orbitron
-        const presets = {
-          orbitron: {
-            bodyColor: 0x4c5057,
-            bodyMetalness: 0.42,
-            bodyRoughness: 0.48,
-            accentColor: 0xc2926e,
-            accentMetalness: 0.68,
-            accentRoughness: 0.34,
-            chassisColor: 0x2a2d32,
-            ledColor: 0xeaf4ff,
-            ledEmissive: 0x9fd0ff
-          },
-          titanio: {
-            bodyColor: 0x7b8088,
-            bodyMetalness: 0.62,
-            bodyRoughness: 0.36,
-            accentColor: 0xc89d7a,
-            accentMetalness: 0.75,
-            accentRoughness: 0.28,
-            chassisColor: 0x26292e,
-            ledColor: 0xf4f8fc,
-            ledEmissive: 0xb8dcff
-          },
-          cromo: {
-            bodyColor: 0x393c42,
-            bodyMetalness: 0.52,
-            bodyRoughness: 0.42,
-            accentColor: 0xb58563,
-            accentMetalness: 0.72,
-            accentRoughness: 0.32,
-            chassisColor: 0x1f2125,
-            ledColor: 0xe6f0fa,
-            ledEmissive: 0x8ec4f8
-          }
-        };
-
-        const activeCfg = presets.orbitron;
-
+        // Materiales compartidos Orbitron
         const bodyMat = new THREE.MeshStandardMaterial({
-          color: activeCfg.bodyColor,
-          roughness: activeCfg.bodyRoughness,
-          metalness: activeCfg.bodyMetalness,
+          color: FINISHES.grafito.body,
+          metalness: 0.45,
+          roughness: 0.44,
           bumpMap: brushedBump,
           bumpScale: 0.006,
           flatShading: true
         });
 
         const accentMat = new THREE.MeshStandardMaterial({
-          color: activeCfg.accentColor,
-          roughness: activeCfg.accentRoughness,
-          metalness: activeCfg.accentMetalness,
+          color: FINISHES.grafito.accent,
+          metalness: 0.72,
+          roughness: 0.32,
           bumpMap: brushedBump,
           bumpScale: 0.005,
           flatShading: true
         });
 
-        const chassisMat = new THREE.MeshStandardMaterial({
-          color: activeCfg.chassisColor,
-          roughness: 0.56,
+        const darkMat = new THREE.MeshStandardMaterial({
+          color: 0x22252a,
           metalness: 0.45,
-          flatShading: true
-        });
-
-        const carbonMat = new THREE.MeshStandardMaterial({
-          map: carbonTex,
-          roughness: 0.46,
-          metalness: 0.22,
+          roughness: 0.55,
           flatShading: true
         });
 
         const tireMat = new THREE.MeshStandardMaterial({
-          color: 0x24262a,
-          roughness: 0.86,
-          metalness: 0.06,
-          bumpMap: brushedBump,
-          bumpScale: 0.012,
+          color: 0x1d1f23,
+          roughness: 0.88,
+          metalness: 0.05,
           flatShading: true
-        });
-
-        const seatMat = new THREE.MeshStandardMaterial({
-          map: leatherTex,
-          roughness: 0.82,
-          metalness: 0.04,
-          flatShading: true
-        });
-
-        const discMat = new THREE.MeshStandardMaterial({
-          map: discTex,
-          roughness: 0.32,
-          metalness: 0.85,
-          side: THREE.DoubleSide
         });
 
         const glassMat = new THREE.MeshStandardMaterial({
-          color: 0x9eb2c4,
-          roughness: 0.14,
-          metalness: 0.15,
+          color: 0x98b0c7,
+          roughness: 0.15,
+          metalness: 0.2,
           transparent: true,
-          opacity: 0.46
+          opacity: 0.52
         });
 
-        const ledMat = new THREE.MeshStandardMaterial({
-          color: activeCfg.ledColor,
-          emissive: activeCfg.ledEmissive,
-          emissiveIntensity: 1.35,
-          roughness: 0.2,
-          metalness: 0.1
+        const headLedMat = new THREE.MeshStandardMaterial({
+          color: 0xf4f9ff,
+          emissive: 0xaad4ff,
+          emissiveIntensity: 1.5
         });
 
-        // Construcción del Prototipo V-04 Orbitron (ejes: +Z adelante, +Y arriba, +X izquierda/derecha)
-        const bikeGroup = new THREE.Group();
-        scene.add(bikeGroup);
-
-        // Chasis y bloque central
-        const frameGroup = new THREE.Group();
-        bikeGroup.add(frameGroup);
-
-        // Quilla / cubrecárter facetado en bronce satinado
-        const bellyGeo = new THREE.CylinderGeometry(0.19, 0.26, 0.72, 6);
-        bellyGeo.rotateX(Math.PI / 2);
-        bellyGeo.scale(1.15, 0.78, 1.0);
-        const bellyMesh = new THREE.Mesh(bellyGeo, accentMat);
-        bellyMesh.position.set(0, 0.34, 0.14);
-        bellyMesh.castShadow = true;
-        bellyMesh.receiveShadow = true;
-        frameGroup.add(bellyMesh);
-
-        // Motor central detallado low-poly
-        const engineBlock = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.38, 0.44), chassisMat);
-        engineBlock.position.set(0, 0.56, 0.08);
-        engineBlock.castShadow = true;
-        frameGroup.add(engineBlock);
-
-        for (let i = 0; i < 5; i++) {
-          const fin = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.018, 0.38), bodyMat);
-          fin.position.set(0, 0.65 + i * 0.032, 0.09);
-          fin.castShadow = true;
-          frameGroup.add(fin);
-        }
-
-        // Estructura tubular multitubular en bronce
-        function addTube(p1, p2, radius, mat) {
-          const v1 = new THREE.Vector3(p1[0], p1[1], p1[2]);
-          const v2 = new THREE.Vector3(p2[0], p2[1], p2[2]);
-          const dir = new THREE.Vector3().subVectors(v2, v1);
-          const len = dir.length();
-          const geo = new THREE.CylinderGeometry(radius, radius, len, 6);
-          const mesh = new THREE.Mesh(geo, mat);
-          mesh.position.copy(v1).addScaledVector(dir, 0.5);
-          mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.normalize());
-          mesh.castShadow = true;
-          frameGroup.add(mesh);
-          return mesh;
-        }
-
-        [-1, 1].forEach((side) => {
-          const x = side * 0.18;
-          addTube([x, 0.76, 0.34], [x, 0.44, -0.06], 0.024, accentMat);
-          addTube([x, 0.74, 0.12], [x, 0.46, -0.22], 0.022, accentMat);
-          addTube([x, 0.78, -0.22], [x, 0.88, -0.68], 0.018, bodyMat);
-          addTube([x, 0.68, -0.24], [x, 0.83, -0.68], 0.016, accentMat);
-          addTube([x, 0.52, -0.22], [x, 0.48, -0.78], 0.025, bodyMat);
+        const tailLedMat = new THREE.MeshStandardMaterial({
+          color: 0xff3b30,
+          emissive: 0xe02419,
+          emissiveIntensity: 1.4
         });
 
-        // Radiador frontal
-        const radiator = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.28, 0.12), chassisMat);
-        radiator.position.set(0, 0.68, 0.42);
-        radiator.rotation.x = -0.22;
-        radiator.castShadow = true;
-        frameGroup.add(radiator);
-
-        // Depósito escultórico facetado en grafito
-        const tankGeo = new THREE.CylinderGeometry(0.24, 0.31, 0.66, 7);
-        tankGeo.rotateX(Math.PI / 2 - 0.14);
-        tankGeo.scale(1.08, 0.84, 1.0);
-        const tankMesh = new THREE.Mesh(tankGeo, bodyMat);
-        tankMesh.position.set(0, 0.92, 0.04);
-        tankMesh.castShadow = true;
-        tankMesh.receiveShadow = true;
-        frameGroup.add(tankMesh);
-
-        // Toma de aire / tapa superior del depósito
-        const tankCap = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 0.02, 8), accentMat);
-        tankCap.position.set(0, 1.11, 0.14);
-        frameGroup.add(tankCap);
-
-        // Aletas laterales del radiador / carenado lateral facetado
-        [-1, 1].forEach((side) => {
-          const shroudGeo = new THREE.BoxGeometry(0.14, 0.34, 0.36);
-          const shroud = new THREE.Mesh(shroudGeo, bodyMat);
-          shroud.position.set(side * 0.23, 0.77, 0.28);
-          shroud.rotation.y = side * -0.22;
-          shroud.rotation.z = side * 0.16;
-          shroud.castShadow = true;
-          frameGroup.add(shroud);
-
-          const bronzeAccent = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.24, 0.24), accentMat);
-          bronzeAccent.position.set(side * 0.25, 0.62, 0.24);
-          bronzeAccent.rotation.x = 0.35;
-          bronzeAccent.castShadow = true;
-          frameGroup.add(bronzeAccent);
+        // Carretera y entorno
+        const roadMat = new THREE.MeshStandardMaterial({
+          map: asphaltTex,
+          roughness: 0.88,
+          metalness: 0.04
         });
+        const roadMesh = new THREE.Mesh(new THREE.PlaneGeometry(11.4, 320), roadMat);
+        roadMesh.rotation.x = -Math.PI / 2;
+        roadMesh.receiveShadow = true;
+        scene.add(roadMesh);
 
-        // Asiento dividido en cuero texturizado
-        const riderSeat = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.08, 0.44), seatMat);
-        riderSeat.position.set(0, 0.83, -0.36);
-        riderSeat.rotation.x = 0.06;
-        riderSeat.castShadow = true;
-        frameGroup.add(riderSeat);
+        const shoulderMat = new THREE.MeshStandardMaterial({ color: 0x737980, roughness: 0.94 });
+        const shoulderLeft = new THREE.Mesh(new THREE.PlaneGeometry(140, 320), shoulderMat);
+        shoulderLeft.rotation.x = -Math.PI / 2;
+        shoulderLeft.position.set(-75.7, -0.02, 0);
+        shoulderLeft.receiveShadow = true;
+        scene.add(shoulderLeft);
 
-        const pillionSeat = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.07, 0.22), seatMat);
-        pillionSeat.position.set(0, 0.90, -0.68);
-        pillionSeat.rotation.x = -0.14;
-        pillionSeat.castShadow = true;
-        frameGroup.add(pillionSeat);
+        const shoulderRight = new THREE.Mesh(new THREE.PlaneGeometry(140, 320), shoulderMat);
+        shoulderRight.rotation.x = -Math.PI / 2;
+        shoulderRight.position.set(75.7, -0.02, 0);
+        shoulderRight.receiveShadow = true;
+        scene.add(shoulderRight);
 
-        // Colín trasero facetado
-        const tailGeo = new THREE.BoxGeometry(0.28, 0.16, 0.42);
-        const tailMesh = new THREE.Mesh(tailGeo, bodyMat);
-        tailMesh.position.set(0, 0.86, -0.66);
-        tailMesh.rotation.x = -0.22;
-        tailMesh.castShadow = true;
-        frameGroup.add(tailMesh);
+        // Postes y barreras laterales reciclables
+        const barrierMat = new THREE.MeshStandardMaterial({ color: 0x8b9198, roughness: 0.65, metalness: 0.25, flatShading: true });
+        const beaconMat = new THREE.MeshStandardMaterial({ color: 0xc2926e, emissive: 0xc2926e, emissiveIntensity: 0.55 });
+        const roadsideProps = [];
+        for (let i = 0; i < 28; i++) {
+          const z = -120 + i * 11;
+          [-1, 1].forEach((side) => {
+            const g = new THREE.Group();
+            const post = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.72, 2.4), barrierMat);
+            post.position.y = 0.36;
+            post.castShadow = true;
+            g.add(post);
 
-        // Piloto trasero LED rojo
-        const tailLight = new THREE.Mesh(
-          new THREE.BoxGeometry(0.14, 0.03, 0.03),
-          new THREE.MeshStandardMaterial({
-            color: 0xff3b30,
-            emissive: 0xd9261c,
-            emissiveIntensity: 1.2
-          })
-        );
-        tailLight.position.set(0, 0.90, -0.87);
-        frameGroup.add(tailLight);
+            const light = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.12, 0.35), beaconMat);
+            light.position.y = 0.76;
+            g.add(light);
 
-        // Escape bajo lateral derecho
-        const exhaust = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.068, 0.44, 7), chassisMat);
-        exhaust.rotation.x = Math.PI / 2 - 0.12;
-        exhaust.position.set(-0.22, 0.36, -0.24);
-        exhaust.castShadow = true;
-        frameGroup.add(exhaust);
-
-        // Conjunto de dirección, horquilla invertida, faro y manillar
-        const steerPivot = new THREE.Group();
-        steerPivot.position.set(0, 0.96, 0.52);
-        bikeGroup.add(steerPivot);
-
-        const forkAngle = -0.36; // inclinada hacia adelante (+Z)
-        const forkGroup = new THREE.Group();
-        forkGroup.rotation.x = forkAngle;
-        steerPivot.add(forkGroup);
-
-        [-1, 1].forEach((side) => {
-          const x = side * 0.115;
-          // Barra superior en bronce
-          const upperTube = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, 0.42, 8), accentMat);
-          upperTube.position.set(x, -0.14, 0);
-          upperTube.castShadow = true;
-          forkGroup.add(upperTube);
-
-          // Botella inferior negra mate
-          const lowerLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.034, 0.034, 0.42, 8), chassisMat);
-          lowerLeg.position.set(x, -0.46, 0);
-          lowerLeg.castShadow = true;
-          forkGroup.add(lowerLeg);
-
-          // Protector de horquilla en bronce
-          const guard = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.18, 0.07), accentMat);
-          guard.position.set(x * 1.04, -0.34, 0.02);
-          forkGroup.add(guard);
-        });
-
-        // Guardabarros delantero en fibra de carbono
-        const frontFender = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 0.22, 10, 1, true, -0.55, 1.1), carbonMat);
-        frontFender.rotation.z = Math.PI / 2;
-        frontFender.position.set(0, -0.56, 0.16);
-        forkGroup.add(frontFender);
-
-        // Cúpula parabrisas ahumada
-        const visor = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.22, 0.02), glassMat);
-        visor.position.set(0, 0.18, 0.05);
-        visor.rotation.x = -0.45;
-        steerPivot.add(visor);
-
-        // Faro frontal facetado con firma lumínica en V
-        const headHousing = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.08, 0.14, 6), bodyMat);
-        headHousing.rotation.x = Math.PI / 2 - 0.2;
-        headHousing.position.set(0, 0.01, 0.14);
-        headHousing.castShadow = true;
-        steerPivot.add(headHousing);
-
-        const ledLeft = new THREE.Mesh(new THREE.BoxGeometry(0.022, 0.085, 0.02), ledMat);
-        ledLeft.position.set(-0.042, 0.01, 0.21);
-        ledLeft.rotation.z = 0.26;
-        steerPivot.add(ledLeft);
-
-        const ledRight = new THREE.Mesh(new THREE.BoxGeometry(0.022, 0.085, 0.02), ledMat);
-        ledRight.position.set(0.042, 0.01, 0.21);
-        ledRight.rotation.z = -0.26;
-        steerPivot.add(ledRight);
-
-        const ledBottom = new THREE.Mesh(new THREE.BoxGeometry(0.065, 0.018, 0.02), ledMat);
-        ledBottom.position.set(0, -0.028, 0.21);
-        steerPivot.add(ledBottom);
-
-        // Manillar y puños con detalle en bronce
-        const barTube = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, 0.74, 8), chassisMat);
-        barTube.rotation.z = Math.PI / 2;
-        barTube.position.set(0, 0.06, -0.04);
-        steerPivot.add(barTube);
-
-        [-1, 1].forEach((side) => {
-          const grip = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.12, 8), seatMat);
-          grip.rotation.z = Math.PI / 2;
-          grip.position.set(side * 0.34, 0.06, -0.04);
-          steerPivot.add(grip);
-
-          const barEnd = new THREE.Mesh(new THREE.CylinderGeometry(0.023, 0.023, 0.025, 8), accentMat);
-          barEnd.rotation.z = Math.PI / 2;
-          barEnd.position.set(side * 0.41, 0.06, -0.04);
-          steerPivot.add(barEnd);
-        });
-
-        // Ruedas facetadas con taco, llanta de bronce y disco perforado
-        function createWheelAssembly(radius, width, isFront) {
-          const wheelPivot = new THREE.Group();
-          const spinGroup = new THREE.Group();
-          wheelPivot.add(spinGroup);
-
-          // Neumático facetado
-          const tireGeo = new THREE.TorusGeometry(radius - width * 0.45, width * 0.52, 7, 22);
-          tireGeo.rotateY(Math.PI / 2);
-          const tireMesh = new THREE.Mesh(tireGeo, tireMat);
-          tireMesh.castShadow = true;
-          tireMesh.receiveShadow = true;
-          spinGroup.add(tireMesh);
-
-          // Tacos perimetrales sutiles para lectura low-poly
-          const treadCount = 18;
-          const treadGeo = new THREE.BoxGeometry(width * 0.96, 0.022, 0.075);
-          for (let i = 0; i < treadCount; i++) {
-            const a = (i / treadCount) * Math.PI * 2;
-            const block = new THREE.Mesh(treadGeo, tireMat);
-            block.position.set(0, Math.cos(a) * (radius - 0.01), Math.sin(a) * (radius - 0.01));
-            block.rotation.x = -a;
-            block.castShadow = true;
-            spinGroup.add(block);
-          }
-
-          // Aro exterior de la llanta en bronce satinado
-          const rimGeo = new THREE.TorusGeometry(radius - width * 0.95, 0.016, 6, 20);
-          rimGeo.rotateY(Math.PI / 2);
-          const rimMesh = new THREE.Mesh(rimGeo, accentMat);
-          spinGroup.add(rimMesh);
-
-          // Rayos en Y
-          const spokes = 6;
-          for (let i = 0; i < spokes; i++) {
-            const a = (i / spokes) * Math.PI * 2;
-            const spoke = new THREE.Mesh(new THREE.BoxGeometry(width * 0.42, radius * 0.68, 0.024), chassisMat);
-            spoke.position.set(0, Math.cos(a) * (radius * 0.46), Math.sin(a) * (radius * 0.46));
-            spoke.rotation.x = -a;
-            spinGroup.add(spoke);
-          }
-
-          // Disco de freno perforado y pinza
-          const disc = new THREE.Mesh(new THREE.CylinderGeometry(radius * 0.58, radius * 0.58, 0.012, 20), discMat);
-          disc.rotation.z = Math.PI / 2;
-          disc.position.x = isFront ? width * 0.34 : -width * 0.32;
-          spinGroup.add(disc);
-
-          const caliper = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.09, 0.11), accentMat);
-          caliper.position.set(isFront ? width * 0.38 : -width * 0.35, radius * 0.36, -radius * 0.24);
-          wheelPivot.add(caliper);
-
-          const axle = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, width * 1.25, 8), accentMat);
-          axle.rotation.z = Math.PI / 2;
-          wheelPivot.add(axle);
-
-          return { pivot: wheelPivot, spin: spinGroup };
-        }
-
-        const frontWheel = createWheelAssembly(0.35, 0.14, true);
-        frontWheel.pivot.position.set(0, 0.35, 0.72);
-        bikeGroup.add(frontWheel.pivot);
-
-        const rearWheel = createWheelAssembly(0.35, 0.19, false);
-        rearWheel.pivot.position.set(0, 0.35, -0.74);
-        bikeGroup.add(rearWheel.pivot);
-
-        // Cambio de acabados Orbitron en tiempo real
-        const finishButtons = document.querySelectorAll(".finish-btn");
-        finishButtons.forEach((btn) => {
-          btn.addEventListener("click", () => {
-            const key = btn.getAttribute("data-preset");
-            const cfg = presets[key];
-            if (!cfg) return;
-
-            finishButtons.forEach((b) => b.classList.remove("active"));
-            btn.classList.add("active");
-
-            bodyMat.color.setHex(cfg.bodyColor);
-            bodyMat.metalness = cfg.bodyMetalness;
-            bodyMat.roughness = cfg.bodyRoughness;
-
-            accentMat.color.setHex(cfg.accentColor);
-            accentMat.metalness = cfg.accentMetalness;
-            accentMat.roughness = cfg.accentRoughness;
-
-            chassisMat.color.setHex(cfg.chassisColor);
-            ledMat.color.setHex(cfg.ledColor);
-            ledMat.emissive.setHex(cfg.ledEmissive);
+            g.position.set(side * 6.05, 0, z);
+            scene.add(g);
+            roadsideProps.push({ mesh: g, side });
           });
-        });
+        }
 
-        // Cámara orbital 360° con arrastre táctil / ratón, pellizco / rueda y botones
-        const target = new THREE.Vector3(0, 0.68, 0.0);
-        let yaw = 0.62;       // ángulo horizontal (3/4 frontal derecho)
-        let pitch = 0.24;     // elevación vertical
-        let distance = 3.45;  // distancia a la moto
+        // Constructores de los 3 vehículos Orbitron
+        function createWheel(r, w) {
+          const g = new THREE.Group();
+          const tire = new THREE.Mesh(new THREE.CylinderGeometry(r, r, w, 14), tireMat);
+          tire.rotation.z = Math.PI / 2;
+          tire.castShadow = true;
+          g.add(tire);
+          const rim = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.62, r * 0.62, w * 1.03, 10), accentMat);
+          rim.rotation.z = Math.PI / 2;
+          g.add(rim);
+          return g;
+        }
 
-        const DEFAULT_YAW = 0.62;
-        const DEFAULT_PITCH = 0.24;
-        const DEFAULT_DIST = 3.45;
-        const MIN_DIST = 1.55;
-        const MAX_DIST = 7.8;
-        const MIN_PITCH = 0.05;
-        const MAX_PITCH = 1.18;
+        function buildMotoMesh() {
+          const root = new THREE.Group();
+          const wheels = [];
 
+          const belly = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.22, 0.74), accentMat);
+          belly.position.set(0, 0.34, 0.1);
+          belly.castShadow = true;
+          root.add(belly);
+
+          const engine = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.36, 0.44), darkMat);
+          engine.position.set(0, 0.56, 0.06);
+          engine.castShadow = true;
+          root.add(engine);
+
+          const tank = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.3, 0.66), bodyMat);
+          tank.position.set(0, 0.9, 0.08);
+          tank.rotation.x = 0.1;
+          tank.castShadow = true;
+          root.add(tank);
+
+          const tail = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.16, 0.54), bodyMat);
+          tail.position.set(0, 0.88, -0.58);
+          tail.rotation.x = -0.18;
+          tail.castShadow = true;
+          root.add(tail);
+
+          const seat = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.08, 0.42), darkMat);
+          seat.position.set(0, 0.82, -0.34);
+          root.add(seat);
+
+          const fork = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.68, 0.1), accentMat);
+          fork.position.set(0, 0.66, 0.56);
+          fork.rotation.x = -0.34;
+          root.add(fork);
+
+          const head = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.18, 0.2), bodyMat);
+          head.position.set(0, 0.96, 0.54);
+          root.add(head);
+
+          const led = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.08, 0.03), headLedMat);
+          led.position.set(0, 0.96, 0.65);
+          root.add(led);
+
+          const tLed = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.04, 0.03), tailLedMat);
+          tLed.position.set(0, 0.92, -0.85);
+          root.add(tLed);
+
+          const bar = new THREE.Mesh(new THREE.BoxGeometry(0.74, 0.04, 0.05), darkMat);
+          bar.position.set(0, 1.03, 0.46);
+          root.add(bar);
+
+          const fw = createWheel(0.34, 0.14);
+          fw.position.set(0, 0.34, 0.72);
+          root.add(fw);
+          wheels.push(fw);
+
+          const rw = createWheel(0.34, 0.19);
+          rw.position.set(0, 0.34, -0.72);
+          root.add(rw);
+          wheels.push(rw);
+
+          return { root, wheels, radius: 0.34 };
+        }
+
+        function buildCoupeMesh() {
+          const root = new THREE.Group();
+          const wheels = [];
+
+          const lowerBody = new THREE.Mesh(new THREE.BoxGeometry(1.74, 0.46, 3.65), bodyMat);
+          lowerBody.position.set(0, 0.48, 0);
+          lowerBody.castShadow = true;
+          root.add(lowerBody);
+
+          const splitter = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.1, 3.76), accentMat);
+          splitter.position.set(0, 0.24, 0);
+          splitter.castShadow = true;
+          root.add(splitter);
+
+          const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.36, 0.44, 1.85), glassMat);
+          cabin.position.set(0, 0.9, -0.14);
+          root.add(cabin);
+
+          const roof = new THREE.Mesh(new THREE.BoxGeometry(1.26, 0.08, 1.45), bodyMat);
+          roof.position.set(0, 1.13, -0.18);
+          roof.castShadow = true;
+          root.add(roof);
+
+          const wing = new THREE.Mesh(new THREE.BoxGeometry(1.68, 0.07, 0.28), accentMat);
+          wing.position.set(0, 0.96, -1.66);
+          wing.castShadow = true;
+          root.add(wing);
+
+          [-0.58, 0.58].forEach((x) => {
+            const strut = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.24, 0.16), darkMat);
+            strut.position.set(x, 0.82, -1.66);
+            root.add(strut);
+
+            const hl = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.07, 0.05), headLedMat);
+            hl.position.set(x, 0.56, 1.83);
+            root.add(hl);
+
+            const tl = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.08, 0.05), tailLedMat);
+            tl.position.set(x, 0.58, -1.83);
+            root.add(tl);
+          });
+
+          [
+            [-0.84, 1.15],
+            [0.84, 1.15],
+            [-0.84, -1.15],
+            [0.84, -1.15]
+          ].forEach(([x, z]) => {
+            const w = createWheel(0.36, 0.24);
+            w.position.set(x, 0.36, z);
+            root.add(w);
+            wheels.push(w);
+          });
+
+          return { root, wheels, radius: 0.36 };
+        }
+
+        function buildBusMesh() {
+          const root = new THREE.Group();
+          const wheels = [];
+
+          const chassis = new THREE.Mesh(new THREE.BoxGeometry(2.22, 0.56, 6.8), accentMat);
+          chassis.position.set(0, 0.58, 0);
+          chassis.castShadow = true;
+          root.add(chassis);
+
+          const upper = new THREE.Mesh(new THREE.BoxGeometry(2.18, 1.48, 6.68), bodyMat);
+          upper.position.set(0, 1.6, 0);
+          upper.castShadow = true;
+          root.add(upper);
+
+          const winBand = new THREE.Mesh(new THREE.BoxGeometry(2.22, 0.82, 6.45), glassMat);
+          winBand.position.set(0, 1.72, 0.05);
+          root.add(winBand);
+
+          const roofPod = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.18, 4.4), accentMat);
+          roofPod.position.set(0, 2.42, -0.2);
+          root.add(roofPod);
+
+          [-0.78, 0.78].forEach((x) => {
+            const hl = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.12, 0.06), headLedMat);
+            hl.position.set(x, 0.72, 3.41);
+            root.add(hl);
+
+            const tl = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.24, 0.06), tailLedMat);
+            tl.position.set(x, 0.85, -3.41);
+            root.add(tl);
+          });
+
+          [
+            [-1.04, 2.15],
+            [1.04, 2.15],
+            [-1.04, -1.75],
+            [1.04, -1.75],
+            [-1.04, -2.55],
+            [1.04, -2.55]
+          ].forEach(([x, z]) => {
+            const w = createWheel(0.46, 0.28);
+            w.position.set(x, 0.46, z);
+            root.add(w);
+            wheels.push(w);
+          });
+
+          return { root, wheels, radius: 0.46 };
+        }
+
+        const vehicleBuilders = {
+          moto: buildMotoMesh,
+          coupe: buildCoupeMesh,
+          bus: buildBusMesh
+        };
+
+        const playerHolder = new THREE.Group();
+        scene.add(playerHolder);
+        let activeVehicleObj = null;
+
+        function applyFinish(finishId) {
+          const f = FINISHES[finishId] || FINISHES.grafito;
+          bodyMat.color.setHex(f.body);
+          bodyMat.metalness = f.metalness;
+          bodyMat.roughness = f.roughness;
+          accentMat.color.setHex(f.accent);
+        }
+
+        function setPlayerVehicle(vehicleId) {
+          if (!VEHICLES[vehicleId]) vehicleId = "moto";
+          save.vehicleId = vehicleId;
+          persistSave();
+
+          while (playerHolder.children.length > 0) {
+            playerHolder.remove(playerHolder.children[0]);
+          }
+          activeVehicleObj = vehicleBuilders[vehicleId]();
+          playerHolder.add(activeVehicleObj.root);
+
+          const vCfg = VEHICLES[vehicleId];
+          camDist = vCfg.camDist;
+          camTarget.y = vCfg.camHeight;
+          document.getElementById("hud-vehicle-title").textContent = vCfg.name;
+          updateCamera();
+        }
+
+        // Tráfico y obstáculos en carriles
+        const LANES = [-3.3, 0, 3.3];
+        const obstacles = [];
+        const trafficMat = new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.45, roughness: 0.45, flatShading: true });
+        const coneMat = new THREE.MeshStandardMaterial({ color: 0xea580c, roughness: 0.55, flatShading: true });
+        const coneStripeMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.4 });
+
+        function clearObstacles() {
+          while (obstacles.length > 0) {
+            const o = obstacles.pop();
+            scene.remove(o.mesh);
+          }
+        }
+
+        function spawnTrackObstacles(trackCfg) {
+          clearObstacles();
+          const totalLen = trackCfg.length;
+
+          // Vehículos de tráfico
+          for (let i = 0; i < trackCfg.trafficCount; i++) {
+            const g = new THREE.Group();
+            const chassis = new THREE.Mesh(new THREE.BoxGeometry(1.75, 0.65, 3.6), trafficMat);
+            chassis.position.y = 0.52;
+            chassis.castShadow = true;
+            g.add(chassis);
+
+            const top = new THREE.Mesh(new THREE.BoxGeometry(1.42, 0.48, 1.95), darkMat);
+            top.position.set(0, 1.04, -0.15);
+            g.add(top);
+
+            const tl = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.1, 0.05), tailLedMat);
+            tl.position.set(0, 0.62, -1.81);
+            g.add(tl);
+
+            const lane = LANES[i % LANES.length];
+            const distPos = 75 + ((totalLen - 120) / Math.max(1, trackCfg.trafficCount)) * i;
+            scene.add(g);
+            obstacles.push({
+              type: "traffic",
+              mesh: g,
+              lane,
+              trackDist: distPos,
+              speed: 14 + (i % 3) * 3.5,
+              halfW: 0.88,
+              halfL: 1.8,
+              nearMissed: false,
+              hitCooldown: 0
+            });
+          }
+
+          // Conos de obra
+          for (let i = 0; i < trackCfg.coneCount; i++) {
+            const g = new THREE.Group();
+            const cone = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.28, 0.72, 8), coneMat);
+            cone.position.y = 0.36;
+            cone.castShadow = true;
+            g.add(cone);
+
+            const stripe = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.21, 0.18, 8), coneStripeMat);
+            stripe.position.y = 0.42;
+            g.add(stripe);
+
+            const lane = LANES[(i + 1) % LANES.length];
+            const distPos = 55 + ((totalLen - 95) / Math.max(1, trackCfg.coneCount)) * i;
+            scene.add(g);
+            obstacles.push({
+              type: "cone",
+              mesh: g,
+              lane,
+              trackDist: distPos,
+              speed: 0,
+              halfW: 0.3,
+              halfL: 0.3,
+              nearMissed: true,
+              hitCooldown: 0
+            });
+          }
+        }
+
+        // Estado de carrera
+        let runState = {
+          trackId: save.trackId,
+          distance: 0,
+          elapsed: 0,
+          speed: 0,
+          lateralX: 0,
+          started: false,
+          finished: false,
+          paused: false,
+          checkpointIdx: 0,
+          shakeTime: 0
+        };
+
+        function formatTime(sec) {
+          if (sec == null || !isFinite(sec)) return "--:--.--";
+          const m = Math.floor(sec / 60);
+          const s = Math.floor(sec % 60);
+          const cs = Math.floor((sec * 100) % 100);
+          return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}.${String(cs).padStart(2, "0")}`;
+        }
+
+        let toastTimer = null;
+        function showToast(msg, kind = "") {
+          const el = document.getElementById("toast-banner");
+          el.textContent = msg;
+          el.className = "show " + kind;
+          clearTimeout(toastTimer);
+          toastTimer = setTimeout(() => {
+            el.className = "";
+          }, 1650);
+        }
+
+        function applyTrackEnvironment(trackId) {
+          const t = TRACKS[trackId] || TRACKS.industrial;
+          scene.background = new THREE.Color(t.sky);
+          scene.fog = new THREE.FogExp2(t.sky, t.fogDensity);
+          shoulderMat.color.setHex(t.shoulder);
+          barrierMat.color.setHex(t.barrier);
+          beaconMat.color.setHex(t.beacon);
+          beaconMat.emissive.setHex(t.beacon);
+          document.getElementById("hud-track-sub").textContent = `${t.name} · META ${t.targetTime.toFixed(1)}S`;
+          document.getElementById("tele-best").textContent = formatTime(save.bestTimes[trackId]);
+        }
+
+        function resetRun(trackId) {
+          if (trackId && TRACKS[trackId]) {
+            save.trackId = trackId;
+            persistSave();
+          }
+          const t = TRACKS[save.trackId];
+          runState = {
+            trackId: save.trackId,
+            distance: 0,
+            elapsed: 0,
+            speed: 0,
+            lateralX: 0,
+            started: false,
+            finished: false,
+            paused: false,
+            checkpointIdx: 0,
+            shakeTime: 0
+          };
+          playerHolder.position.set(0, 0, 0);
+          playerHolder.rotation.set(0, 0, 0);
+          applyTrackEnvironment(save.trackId);
+          spawnTrackObstacles(t);
+          updateHud();
+        }
+
+        function updateHud() {
+          const t = TRACKS[runState.trackId];
+          document.getElementById("tele-time").textContent = formatTime(runState.elapsed);
+          document.getElementById("tele-speed").textContent = `${Math.round(runState.speed * 3.6)} KM/H`;
+          document.getElementById("tele-dist").textContent = `${Math.min(t.length, Math.floor(runState.distance))} / ${t.length}M`;
+          const pct = Math.min(100, Math.max(0, (runState.distance / t.length) * 100));
+          document.getElementById("track-progress-fill").style.width = pct.toFixed(1) + "%";
+        }
+
+        // Cámara orbital 360°
+        const camTarget = new THREE.Vector3(0, 0.75, 0);
+        let camYaw = 0.0;
+        let camPitch = 0.22;
+        let camDist = 3.8;
         let autoRotate = false;
-        let isDragging = false;
-        let lastX = 0;
-        let lastY = 0;
-        let pinchStartDist = 0;
-        let pinchStartCamDist = distance;
+        let draggingCam = false;
+        let lastPtrX = 0;
+        let lastPtrY = 0;
+        let pinchDist = 0;
+        let pinchCamStart = camDist;
 
         function updateCamera() {
-          const cosPitch = Math.cos(pitch);
-          const x = target.x + Math.sin(yaw) * cosPitch * distance;
-          const y = Math.max(0.22, target.y + Math.sin(pitch) * distance);
-          const z = target.z + Math.cos(yaw) * cosPitch * distance;
-          camera.position.set(x, y, z);
-          camera.lookAt(target);
+          const cp = Math.cos(camPitch);
+          const ox = Math.sin(camYaw) * cp * camDist;
+          const oy = Math.max(0.35, Math.sin(camPitch) * camDist);
+          const oz = -Math.cos(camYaw) * cp * camDist;
+
+          let shakeX = 0;
+          let shakeY = 0;
+          if (runState.shakeTime > 0) {
+            shakeX = (Math.random() - 0.5) * 0.18;
+            shakeY = (Math.random() - 0.5) * 0.14;
+          }
+
+          camera.position.set(
+            playerHolder.position.x + ox + shakeX,
+            camTarget.y + oy + shakeY,
+            playerHolder.position.z + oz
+          );
+          camera.lookAt(playerHolder.position.x, camTarget.y, playerHolder.position.z + 1.4);
         }
 
-        function setZoomDistance(nextDist) {
-          distance = Math.max(MIN_DIST, Math.min(MAX_DIST, nextDist));
-          updateCamera();
-        }
-
-        // Eventos táctiles y de ratón sobre el canvas
         const dom = renderer.domElement;
-
         dom.addEventListener("pointerdown", (e) => {
           if (e.pointerType === "touch") return;
-          isDragging = true;
-          lastX = e.clientX;
-          lastY = e.clientY;
+          draggingCam = true;
+          lastPtrX = e.clientX;
+          lastPtrY = e.clientY;
         });
-
         window.addEventListener("pointermove", (e) => {
-          if (!isDragging || e.pointerType === "touch") return;
-          const dx = e.clientX - lastX;
-          const dy = e.clientY - lastY;
-          lastX = e.clientX;
-          lastY = e.clientY;
-
-          yaw -= dx * 0.0075;
-          pitch = Math.max(MIN_PITCH, Math.min(MAX_PITCH, pitch + dy * 0.0065));
+          if (!draggingCam || e.pointerType === "touch") return;
+          camYaw -= (e.clientX - lastPtrX) * 0.007;
+          camPitch = Math.max(0.06, Math.min(1.15, camPitch + (e.clientY - lastPtrY) * 0.006));
+          lastPtrX = e.clientX;
+          lastPtrY = e.clientY;
           updateCamera();
         });
-
         window.addEventListener("pointerup", () => {
-          isDragging = false;
+          draggingCam = false;
         });
-
         dom.addEventListener("wheel", (e) => {
           e.preventDefault();
-          setZoomDistance(distance + e.deltaY * 0.0024);
+          camDist = Math.max(2.0, Math.min(11.0, camDist + e.deltaY * 0.0025));
+          updateCamera();
         }, { passive: false });
 
         dom.addEventListener("touchstart", (e) => {
           if (e.touches.length === 1) {
-            isDragging = true;
-            lastX = e.touches[0].clientX;
-            lastY = e.touches[0].clientY;
+            draggingCam = true;
+            lastPtrX = e.touches[0].clientX;
+            lastPtrY = e.touches[0].clientY;
           } else if (e.touches.length === 2) {
-            isDragging = false;
-            const dx = e.touches[0].clientX - e.touches[1].clientX;
-            const dy = e.touches[0].clientY - e.touches[1].clientY;
-            pinchStartDist = Math.hypot(dx, dy);
-            pinchStartCamDist = distance;
+            draggingCam = false;
+            pinchDist = Math.hypot(
+              e.touches[0].clientX - e.touches[1].clientX,
+              e.touches[0].clientY - e.touches[1].clientY
+            );
+            pinchCamStart = camDist;
           }
         }, { passive: true });
 
         dom.addEventListener("touchmove", (e) => {
-          if (e.touches.length === 1 && isDragging) {
-            const cx = e.touches[0].clientX;
-            const cy = e.touches[0].clientY;
-            const dx = cx - lastX;
-            const dy = cy - lastY;
-            lastX = cx;
-            lastY = cy;
-
-            yaw -= dx * 0.0085;
-            pitch = Math.max(MIN_PITCH, Math.min(MAX_PITCH, pitch + dy * 0.007));
+          if (e.touches.length === 1 && draggingCam) {
+            camYaw -= (e.touches[0].clientX - lastPtrX) * 0.008;
+            camPitch = Math.max(0.06, Math.min(1.15, camPitch + (e.touches[0].clientY - lastPtrY) * 0.0065));
+            lastPtrX = e.touches[0].clientX;
+            lastPtrY = e.touches[0].clientY;
             updateCamera();
-          } else if (e.touches.length === 2 && pinchStartDist > 0) {
-            const dx = e.touches[0].clientX - e.touches[1].clientX;
-            const dy = e.touches[0].clientY - e.touches[1].clientY;
-            const distNow = Math.hypot(dx, dy);
-            const scale = pinchStartDist / Math.max(10, distNow);
-            setZoomDistance(pinchStartCamDist * scale);
+          } else if (e.touches.length === 2 && pinchDist > 0) {
+            const dNow = Math.hypot(
+              e.touches[0].clientX - e.touches[1].clientX,
+              e.touches[0].clientY - e.touches[1].clientY
+            );
+            camDist = Math.max(2.0, Math.min(11.0, pinchCamStart * (pinchDist / Math.max(10, dNow))));
+            updateCamera();
           }
         }, { passive: true });
 
-        dom.addEventListener("touchend", (e) => {
-          if (e.touches.length === 0) {
-            isDragging = false;
-            pinchStartDist = 0;
-          } else if (e.touches.length === 1) {
-            lastX = e.touches[0].clientX;
-            lastY = e.touches[0].clientY;
-            isDragging = true;
-          }
+        dom.addEventListener("touchend", () => {
+          draggingCam = false;
+          pinchDist = 0;
         }, { passive: true });
 
-        // Botones ZOOM y ROTAR
-        const btnZoomIn = document.getElementById("btn-zoom-in");
-        const btnZoomOut = document.getElementById("btn-zoom-out");
-        const btnZoomReset = document.getElementById("btn-zoom-reset");
-        const btnRotate = document.getElementById("btn-rotate");
+        // Entradas de teclado, control remoto TV y botones táctiles
+        const input = { left: false, right: false, gas: false, brake: false };
 
-        btnZoomIn.addEventListener("click", () => {
-          setZoomDistance(distance - 0.55);
+        function bindHoldButton(id, key) {
+          const btn = document.getElementById(id);
+          const down = (e) => {
+            e.preventDefault();
+            ensureAudio();
+            input[key] = true;
+            btn.classList.add("pressed");
+          };
+          const up = (e) => {
+            if (e) e.preventDefault();
+            input[key] = false;
+            btn.classList.remove("pressed");
+          };
+          btn.addEventListener("pointerdown", down);
+          btn.addEventListener("pointerup", up);
+          btn.addEventListener("pointerleave", up);
+          btn.addEventListener("pointercancel", up);
+        }
+
+        bindHoldButton("btn-left", "left");
+        bindHoldButton("btn-right", "right");
+        bindHoldButton("btn-gas", "gas");
+        bindHoldButton("btn-brake", "brake");
+
+        window.addEventListener("keydown", (e) => {
+          const code = e.code;
+          if (code === "ArrowLeft" || code === "KeyA") input.left = true;
+          if (code === "ArrowRight" || code === "KeyD") input.right = true;
+          if (code === "ArrowUp" || code === "KeyW") {
+            ensureAudio();
+            input.gas = true;
+          }
+          if (code === "ArrowDown" || code === "KeyS" || code === "Space") input.brake = true;
+
+          if (code === "KeyG") openModal("modal-garage");
+          if (code === "KeyH") openModal("modal-story");
+          if (code === "KeyP" || code === "Escape") togglePauseModal();
+          if (code === "KeyR") {
+            closeAllModals();
+            resetRun();
+          }
+          if (code === "KeyC") {
+            camYaw = 0;
+            camPitch = 0.22;
+            camDist = VEHICLES[save.vehicleId].camDist;
+            updateCamera();
+          }
+          if (code === "KeyM") toggleMute();
+          if (code === "KeyF") toggleFullscreen();
         });
 
-        btnZoomOut.addEventListener("click", () => {
-          setZoomDistance(distance + 0.55);
+        window.addEventListener("keyup", (e) => {
+          const code = e.code;
+          if (code === "ArrowLeft" || code === "KeyA") input.left = false;
+          if (code === "ArrowRight" || code === "KeyD") input.right = false;
+          if (code === "ArrowUp" || code === "KeyW") input.gas = false;
+          if (code === "ArrowDown" || code === "KeyS" || code === "Space") input.brake = false;
         });
 
-        btnZoomReset.addEventListener("click", () => {
-          yaw = DEFAULT_YAW;
-          pitch = DEFAULT_PITCH;
-          distance = DEFAULT_DIST;
+        // Modales y UI
+        function closeAllModals() {
+          document.querySelectorAll(".modal-backdrop").forEach((m) => m.classList.remove("open"));
+          runState.paused = false;
+        }
+
+        function openModal(id) {
+          closeAllModals();
+          runState.paused = true;
+          if (id === "modal-garage") renderGarageModal();
+          if (id === "modal-story") renderStoryModal();
+          if (id === "modal-pause") renderPauseModal();
+          document.getElementById(id).classList.add("open");
+        }
+
+        function togglePauseModal() {
+          const p = document.getElementById("modal-pause");
+          if (p.classList.contains("open")) {
+            closeAllModals();
+          } else {
+            openModal("modal-pause");
+          }
+        }
+
+        function renderGarageModal() {
+          const vWrap = document.getElementById("garage-vehicles");
+          vWrap.innerHTML = "";
+          Object.values(VEHICLES).forEach((v) => {
+            const unlocked = !!save.unlockedVehicles[v.id];
+            const card = document.createElement("button");
+            card.type = "button";
+            card.className = `option-card ${save.vehicleId === v.id ? "selected" : ""} ${!unlocked ? "locked" : ""}`;
+            card.innerHTML = `
+              <h3>${v.name}</h3>
+              <p>${v.subtitle}</p>
+              <div class="stat-bar-row">
+                <div class="stat-bar-label"><span>VELOCIDAD</span><span>${v.stats.vel}%</span></div>
+                <div class="stat-bar-track"><div class="stat-bar-fill" style="width:${v.stats.vel}%"></div></div>
+              </div>
+              <div class="stat-bar-row">
+                <div class="stat-bar-label"><span>ACELERACIÓN</span><span>${v.stats.acc}%</span></div>
+                <div class="stat-bar-track"><div class="stat-bar-fill" style="width:${v.stats.acc}%"></div></div>
+              </div>
+              <span class="badge-pill">${unlocked ? (save.vehicleId === v.id ? "EQUIPADO" : "DISPONIBLE") : v.unlockHint}</span>
+            `;
+            card.addEventListener("click", () => {
+              if (!unlocked) {
+                showToast("VEHÍCULO BLOQUEADO · COMPLETA 1 TRAMO", "bad");
+                return;
+              }
+              setPlayerVehicle(v.id);
+              renderGarageModal();
+            });
+            vWrap.appendChild(card);
+          });
+
+          const fWrap = document.getElementById("garage-finishes");
+          fWrap.innerHTML = "";
+          Object.values(FINISHES).forEach((f) => {
+            const b = document.createElement("button");
+            b.type = "button";
+            b.className = `ui-btn ${save.finishId === f.id ? "active" : ""}`;
+            b.textContent = f.label;
+            b.addEventListener("click", () => {
+              save.finishId = f.id;
+              persistSave();
+              applyFinish(f.id);
+              renderGarageModal();
+            });
+            fWrap.appendChild(b);
+          });
+
+          const tWrap = document.getElementById("garage-tracks");
+          tWrap.innerHTML = "";
+          Object.values(TRACKS).forEach((t) => {
+            const card = document.createElement("button");
+            card.type = "button";
+            card.className = `option-card ${save.trackId === t.id ? "selected" : ""}`;
+            card.innerHTML = `
+              <h3>${t.name}</h3>
+              <p>Distancia: ${t.length}m · Objetivo: ${t.targetTime.toFixed(1)}s</p>
+              <span class="badge-pill">RÉCORD: ${formatTime(save.bestTimes[t.id])}</span>
+            `;
+            card.addEventListener("click", () => {
+              resetRun(t.id);
+              renderGarageModal();
+            });
+            tWrap.appendChild(card);
+          });
+        }
+
+        function renderStoryModal() {
+          const wrapEl = document.getElementById("story-chapters");
+          wrapEl.innerHTML = "";
+          CHAPTERS.forEach((ch, i) => {
+            const unlocked = !!save.unlockedChapters[i];
+            const done = !!save.completedChapters[i];
+            const card = document.createElement("button");
+            card.type = "button";
+            card.className = `option-card ${save.chapterId === i ? "selected" : ""} ${!unlocked ? "locked" : ""}`;
+            card.innerHTML = `
+              <h3>${ch.title}</h3>
+              <p>${ch.briefing}</p>
+              <span class="badge-pill">${done ? "COMPLETADO ✓" : unlocked ? "ACTIVO" : "BLOQUEADO"}</span>
+            `;
+            card.addEventListener("click", () => {
+              if (!unlocked) {
+                showToast("COMPLETA EL CAPÍTULO ANTERIOR", "bad");
+                return;
+              }
+              save.chapterId = i;
+              persistSave();
+              renderStoryModal();
+            });
+            wrapEl.appendChild(card);
+          });
+          const doneCount = save.completedChapters.filter(Boolean).length;
+          document.getElementById("story-progress-text").textContent = `PROGRESO DE CAMPAÑA: ${doneCount} / ${CHAPTERS.length} CAPÍTULOS`;
+        }
+
+        function renderPauseModal() {
+          document.getElementById("stat-runs").textContent = save.runsCompleted;
+          document.getElementById("stat-nearmiss").textContent = save.nearMissTotal;
+          document.getElementById("stat-penalties").textContent = save.penaltiesTotal;
+        }
+
+        function toggleMute() {
+          save.muted = !save.muted;
+          persistSave();
+          const btn = document.getElementById("btn-mute");
+          btn.textContent = save.muted ? "MUDO" : "AUDIO";
+          btn.classList.toggle("active", save.muted);
+          if (engineGain && audioCtx) {
+            engineGain.gain.setValueAtTime(0, audioCtx.currentTime);
+          }
+        }
+
+        function toggleFullscreen() {
+          try {
+            if (!document.fullscreenElement) {
+              document.documentElement.requestFullscreen().catch(() => {
+                showToast("PANTALLA COMPLETA BLOQUEADA POR EL MARCO", "");
+              });
+            } else {
+              document.exitFullscreen().catch(() => {});
+            }
+          } catch (_) {
+            showToast("PANTALLA COMPLETA NO DISPONIBLE", "");
+          }
+        }
+
+        // Botones de interfaz
+        document.getElementById("btn-garage").addEventListener("click", () => openModal("modal-garage"));
+        document.getElementById("close-garage").addEventListener("click", closeAllModals);
+        document.getElementById("btn-start-from-garage").addEventListener("click", () => {
+          closeAllModals();
+          resetRun(save.trackId);
+        });
+        document.getElementById("btn-unlock-all").addEventListener("click", () => {
+          save.unlockedVehicles = { moto: true, coupe: true, bus: true };
+          save.unlockedChapters = [true, true, true];
+          persistSave();
+          renderGarageModal();
+          showToast("VEHÍCULOS Y CAPÍTULOS DESBLOQUEADOS", "good");
+        });
+
+        document.getElementById("btn-story").addEventListener("click", () => openModal("modal-story"));
+        document.getElementById("close-story").addEventListener("click", closeAllModals);
+        document.getElementById("btn-play-chapter").addEventListener("click", () => {
+          const ch = CHAPTERS[save.chapterId] || CHAPTERS[0];
+          closeAllModals();
+          resetRun(ch.trackId);
+          showToast(ch.title, "");
+        });
+
+        document.getElementById("btn-pause").addEventListener("click", togglePauseModal);
+        document.getElementById("close-pause").addEventListener("click", closeAllModals);
+        document.getElementById("btn-restart-run").addEventListener("click", () => {
+          closeAllModals();
+          resetRun();
+        });
+        document.getElementById("btn-toggle-touch").addEventListener("click", () => {
+          document.body.classList.toggle("tv-mode");
+        });
+        document.getElementById("btn-reset-save").addEventListener("click", () => {
+          save = JSON.parse(JSON.stringify(defaultSave));
+          persistSave();
+          applyFinish(save.finishId);
+          setPlayerVehicle(save.vehicleId);
+          resetRun(save.trackId);
+          renderPauseModal();
+          showToast("PROGRESO RESTABLECIDO", "");
+        });
+
+        document.getElementById("btn-mute").addEventListener("click", toggleMute);
+        document.getElementById("btn-fullscreen").addEventListener("click", toggleFullscreen);
+
+        document.getElementById("btn-zoom-in").addEventListener("click", () => {
+          camDist = Math.max(2.0, camDist - 0.7);
           updateCamera();
         });
-
-        btnRotate.addEventListener("click", () => {
-          autoRotate = !autoRotate;
-          btnRotate.classList.toggle("active", autoRotate);
+        document.getElementById("btn-zoom-out").addEventListener("click", () => {
+          camDist = Math.min(11.0, camDist + 0.7);
+          updateCamera();
         });
+        document.getElementById("btn-cam-reset").addEventListener("click", () => {
+          camYaw = 0;
+          camPitch = 0.22;
+          camDist = VEHICLES[save.vehicleId].camDist;
+          updateCamera();
+        });
+        document.getElementById("btn-auto-rotate").addEventListener("click", (e) => {
+          autoRotate = !autoRotate;
+          e.currentTarget.classList.toggle("active", autoRotate);
+        });
+
+        document.getElementById("btn-finish-garage").addEventListener("click", () => openModal("modal-garage"));
+        document.getElementById("btn-finish-next").addEventListener("click", () => {
+          closeAllModals();
+          resetRun(save.trackId);
+        });
+
+        function handleFinishLine() {
+          runState.finished = true;
+          runState.paused = true;
+          save.runsCompleted += 1;
+          save.unlockedVehicles.bus = true;
+
+          const t = TRACKS[runState.trackId];
+          const prevBest = save.bestTimes[t.id];
+          if (prevBest == null || runState.elapsed < prevBest) {
+            save.bestTimes[t.id] = runState.elapsed;
+          }
+
+          const passedTarget = runState.elapsed <= t.targetTime;
+          let storyNote = passedTarget
+            ? "Has superado el tiempo objetivo de Orbitron. Autobús B-04 disponible en el Garaje."
+            : `Te faltaron ${(runState.elapsed - t.targetTime).toFixed(2)}s para batir el objetivo de ${t.targetTime.toFixed(1)}s.`;
+
+          CHAPTERS.forEach((ch, idx) => {
+            if (ch.trackId === t.id && passedTarget) {
+              save.completedChapters[idx] = true;
+              if (idx + 1 < CHAPTERS.length) {
+                save.unlockedChapters[idx + 1] = true;
+                save.chapterId = idx + 1;
+                storyNote = `¡${ch.title} completado! Desbloqueaste ${CHAPTERS[idx + 1].title}.`;
+              }
+            }
+          });
+
+          persistSave();
+          playTone(523.25, 0.14, "triangle", 0.11);
+          setTimeout(() => playTone(659.25, 0.22, "triangle", 0.11), 130);
+
+          document.getElementById("finish-badge").textContent = passedTarget ? "OBJETIVO CUMPLIDO" : "TRAMO COMPLETADO";
+          document.getElementById("res-time").textContent = formatTime(runState.elapsed);
+          document.getElementById("res-target").textContent = formatTime(t.targetTime);
+          document.getElementById("res-best").textContent = formatTime(save.bestTimes[t.id]);
+          document.getElementById("res-story-note").textContent = storyNote;
+          document.getElementById("modal-finish").classList.add("open");
+        }
+
+        // Inicialización visual y de estado
+        if (save.muted) {
+          document.getElementById("btn-mute").textContent = "MUDO";
+          document.getElementById("btn-mute").classList.add("active");
+        }
+        applyFinish(save.finishId);
+        setPlayerVehicle(save.vehicleId);
+        resetRun(save.trackId);
 
         window.addEventListener("resize", () => {
           camera.aspect = window.innerWidth / window.innerHeight;
@@ -1182,43 +2016,146 @@
           renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        updateCamera();
-
-        // Bucle suave: movimiento ambiental de carretera recta y giro de ruedas
+        // Bucle principal de simulación
         let prevTime = performance.now();
-        const ambientSpeed = 14; // unidades/seg de avance sobre la carretera recta
-        const wheelRadius = 0.35;
-
         function animate(now) {
           requestAnimationFrame(animate);
           const dt = Math.min(0.05, (now - prevTime) / 1000);
           prevTime = now;
 
-          // Avance continuo de la textura de la carretera recta
-          asphaltTex.offset.y -= (ambientSpeed * dt) / 7.82;
+          if (!runState.paused && !runState.finished) {
+            const vCfg = VEHICLES[save.vehicleId];
+            const tCfg = TRACKS[runState.trackId];
 
-          // Giro sincronizado de ambas ruedas
-          const angularDelta = (ambientSpeed * dt) / wheelRadius;
-          frontWheel.spin.rotation.x += angularDelta;
-          rearWheel.spin.rotation.x += angularDelta;
+            if (input.gas || input.left || input.right) {
+              runState.started = true;
+            }
 
-          // Micro-vibración sutil de rodadura sobre el asfalto
-          const t = now * 0.001;
-          bikeGroup.position.y = Math.sin(t * 9.5) * 0.0025;
-          bikeGroup.rotation.z = Math.sin(t * 2.1) * 0.004;
+            if (input.gas) {
+              runState.speed = Math.min(vCfg.maxSpeed, runState.speed + vCfg.accel * dt);
+            } else if (input.brake) {
+              runState.speed = Math.max(0, runState.speed - vCfg.accel * 1.65 * dt);
+            } else {
+              runState.speed = Math.max(0, runState.speed - 9.5 * dt);
+            }
 
-          if (autoRotate) {
-            yaw += dt * 0.55;
-            updateCamera();
+            const steerDir = (input.left ? 1 : 0) - (input.right ? 1 : 0);
+            const steerFactor = Math.min(1, 0.35 + runState.speed / 25);
+            runState.lateralX += steerDir * vCfg.steerSpeed * steerFactor * dt;
+            runState.lateralX = Math.max(-4.35, Math.min(4.35, runState.lateralX));
+
+            runState.distance += runState.speed * dt;
+            if (runState.started) {
+              runState.elapsed += dt;
+            }
+
+            // Curvatura visual suave de la pista
+            const roadCurveX = Math.sin(runState.distance * tCfg.curveFreq) * tCfg.curveAmp;
+            playerHolder.position.x = runState.lateralX + roadCurveX;
+
+            // Inclinación / balanceo dinámico según vehículo
+            const targetRoll = -steerDir * (save.vehicleId === "moto" ? 0.24 : 0.06);
+            playerHolder.rotation.z += (targetRoll - playerHolder.rotation.z) * Math.min(1, dt * 10);
+
+            // Giro de ruedas y textura de asfalto
+            asphaltTex.offset.y -= (runState.speed * dt) / 8.8;
+            if (activeVehicleObj) {
+              const rotDelta = (runState.speed * dt) / activeVehicleObj.radius;
+              activeVehicleObj.wheels.forEach((w) => {
+                w.rotation.x += rotDelta;
+              });
+            }
+
+            // Reciclaje de postes laterales
+            roadsideProps.forEach((p) => {
+              const relZ = ((p.mesh.position.z - runState.speed * dt + 120) % 308 + 308) % 308 - 120;
+              const futureDist = runState.distance + relZ;
+              const cX = Math.sin(futureDist * tCfg.curveFreq) * tCfg.curveAmp;
+              p.mesh.position.set(p.side * 6.05 + cX, 0, relZ);
+            });
+
+            // Actualización de tráfico, conos, roces cercanos y colisiones
+            obstacles.forEach((obs) => {
+              obs.trackDist += obs.speed * dt;
+              if (obs.hitCooldown > 0) obs.hitCooldown -= dt;
+
+              const relZ = obs.trackDist - runState.distance;
+              const obsCurveX = Math.sin(obs.trackDist * tCfg.curveFreq) * tCfg.curveAmp;
+              obs.mesh.position.set(obs.lane + obsCurveX, 0, relZ);
+              obs.mesh.visible = relZ > -25 && relZ < 240;
+
+              const dx = Math.abs(runState.lateralX - obs.lane);
+              const dz = Math.abs(relZ);
+              const hitX = vCfg.halfWidth + obs.halfW;
+              const hitZ = vCfg.halfLength + obs.halfL;
+
+              if (dx < hitX && dz < hitZ && obs.hitCooldown <= 0) {
+                obs.hitCooldown = 1.4;
+                runState.elapsed += 1.5;
+                runState.speed *= 0.45;
+                runState.shakeTime = 0.35;
+                save.penaltiesTotal += 1;
+                persistSave();
+                playTone(130, 0.22, "sawtooth", 0.12);
+                showToast("IMPACTO · PENALIZACIÓN +1.5S", "bad");
+              } else if (
+                obs.type === "traffic" &&
+                !obs.nearMissed &&
+                relZ < -hitZ &&
+                relZ > -(hitZ + 3.5) &&
+                dx < hitX + 0.95 &&
+                runState.speed > 24
+              ) {
+                obs.nearMissed = true;
+                runState.elapsed = Math.max(0, runState.elapsed - vCfg.nearMissBonus);
+                save.nearMissTotal += 1;
+                persistSave();
+                playTone(740, 0.12, "sine", 0.09);
+                showToast(`ROCE CERCANO · -${vCfg.nearMissBonus.toFixed(1)}S`, "good");
+              }
+            });
+
+            // Checkpoints (1/3 y 2/3)
+            const cpStep = tCfg.length / 3;
+            if (runState.checkpointIdx === 0 && runState.distance >= cpStep) {
+              runState.checkpointIdx = 1;
+              playTone(620, 0.1, "triangle", 0.08);
+              showToast(`CHECKPOINT 1/3 · ${formatTime(runState.elapsed)}`, "");
+            } else if (runState.checkpointIdx === 1 && runState.distance >= cpStep * 2) {
+              runState.checkpointIdx = 2;
+              playTone(680, 0.1, "triangle", 0.08);
+              showToast(`CHECKPOINT 2/3 · ${formatTime(runState.elapsed)}`, "");
+            }
+
+            if (runState.shakeTime > 0) runState.shakeTime -= dt;
+
+            // Síntesis de motor
+            if (engineOsc && engineGain && audioCtx && !save.muted) {
+              const baseF = save.vehicleId === "bus" ? 42 : save.vehicleId === "coupe" ? 56 : 68;
+              engineOsc.frequency.setTargetAtTime(baseF + runState.speed * 2.1, audioCtx.currentTime, 0.06);
+              engineGain.gain.setTargetAtTime(runState.speed > 1 ? 0.032 : 0.008, audioCtx.currentTime, 0.08);
+            }
+
+            updateHud();
+
+            if (runState.distance >= tCfg.length) {
+              handleFinishLine();
+            }
+          } else if (engineGain && audioCtx) {
+            engineGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.08);
           }
 
+          if (autoRotate) {
+            camYaw += dt * 0.55;
+          }
+          updateCamera();
           renderer.render(scene, camera);
         }
 
         requestAnimationFrame(animate);
       }
 
-      loadThreeSequential(0);
+      loadThree(0);
     })();
   </script>
 </body>
