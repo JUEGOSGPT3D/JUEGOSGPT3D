@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DAMAS 3D CRISTAL — NeonVault</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;600;700&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+  body {
+    background: radial-gradient(circle at center, #14182b 0%, #05040d 100%);
+    overflow: hidden;
+    font-family: 'Inter', sans-serif;
+    color: #fff;
+  }
+  #canvas-container { width: 100vw; height: 100vh; display: block; }
+
+  /* ==================== PANTALLA DE INICIO Y AJUSTES ==================== */
+  .overlay-screen {
+    position: fixed; inset: 0; z-index: 50;
+    background: rgba(5, 4, 13, 0.86);
+    backdrop-filter: blur(14px);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .menu-card {
+    width: min(440px, 100%);
+    background: linear-gradient(155deg, rgba(22, 16, 58, 0.96), rgba(10, 8, 28, 0.98));
+    border: 1px solid rgba(0, 229, 255, 0.35);
+    border-radius: 26px;
+    padding: 30px 24px;
+    text-align: center;
+    box-shadow: 0 25px 65px rgba(0,0,0,0.8), 0 0 40px rgba(157, 78, 221, 0.25);
+  }
+  .menu-logo {
+    font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 1.65rem;
+    letter-spacing: 2px;
+    background: linear-gradient(90deg, #00e5ff, #c77dff, #ff4d9e);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 6px;
+  }
+  .menu-sub { color: #b4afd8; font-size: 0.88rem; margin-bottom: 22px; }
+  .menu-btn-group { display: flex; flex-direction: column; gap: 12px; }
+  .menu-btn {
+    width: 100%; padding: 14px 18px; border-radius: 16px;
+    font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 0.88rem;
+    letter-spacing: 0.8px; cursor: pointer; transition: all 0.2s ease;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.05); color: #fff;
+  }
+  .menu-btn small { font-family: 'Inter', sans-serif; font-weight: 400; font-size: 0.76rem; color: #cbd5e1; }
+  .menu-btn.primary {
+    background: linear-gradient(135deg, #00e5ff, #7b2cbf);
+    border-color: #00e5ff; color: #04030a;
+  }
+  .menu-btn.primary small { color: #0f172a; font-weight: 600; }
+  .menu-btn.crystal {
+    background: linear-gradient(135deg, rgba(157, 78, 221, 0.35), rgba(217, 70, 239, 0.25));
+    border-color: #c77dff;
+  }
+  .menu-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0, 229, 255, 0.28); }
+
+  /* Panel de Ajustes */
+  .settings-group { text-align: left; margin-bottom: 18px; }
+  .settings-group label {
+    display: block; font-family: 'Orbitron', sans-serif; font-size: 0.74rem;
+    color: #00e5ff; letter-spacing: 1px; margin-bottom: 8px;
+  }
+  .theme-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .theme-opt {
+    padding: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(5,4,13,0.6); color: #e2e8f0; font-size: 0.78rem; font-weight: 600;
+    cursor: pointer; display: flex; align-items: center; gap: 8px; text-align: left;
+  }
+  .theme-opt.selected { border-color: #00e5ff; background: rgba(0, 229, 255, 0.16); color: #fff; }
+  .swatch { width: 16px; height: 16px; border-radius: 50%; border: 1px solid #fff6; flex-shrink: 0; }
+
+  /* ==================== HUD EN PARTIDA ==================== */
+  .hud-top {
+    position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 12px;
+    background: rgba(13, 10, 36, 0.86); backdrop-filter: blur(12px);
+    padding: 8px 18px; border-radius: 50px;
+    border: 1px solid rgba(0, 229, 255, 0.28);
+    z-index: 10; white-space: nowrap;
+  }
+  .title {
+    font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 0.9rem;
+    background: linear-gradient(90deg, #00e5ff, #c084fc);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .mode-pill {
+    font-size: 0.68rem; font-weight: 700; padding: 3px 9px; border-radius: 99px;
+    background: rgba(157, 78, 221, 0.25); border: 1px solid #c084fc; color: #e9d5ff;
+  }
+  .turn-badge {
+    display: flex; align-items: center; gap: 7px;
+    padding: 4px 11px; border-radius: 20px; font-weight: 600; font-size: 0.8rem;
+    background: rgba(255,255,255,0.08);
+  }
+  .turn-dot { width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 10px currentColor; }
+  .status-msg { font-size: 0.8rem; font-weight: 700; color: #fbbf24; }
+
+  .player-banner {
+    position: absolute; top: 58px; left: 50%; transform: translateX(-50%); z-index: 10;
+    padding: 5px 14px; border-radius: 24px; background: rgba(13, 10, 36, 0.85);
+    border: 1px solid rgba(0, 229, 255, 0.35);
+    font: 700 0.74rem 'Orbitron', sans-serif; letter-spacing: 0.7px; white-space: nowrap;
+  }
+
+  .score-panel {
+    position: absolute; left: 14px; top: 96px; z-index: 9; pointer-events: none;
+    background: rgba(13, 10, 36, 0.82); border: 1px solid rgba(0, 229, 255, 0.25);
+    border-radius: 12px; padding: 8px 12px; font-size: 0.74rem; color: #cbd5e1;
+  }
+  .score-panel strong { display: block; color: #fff; margin-bottom: 4px; font-family: 'Orbitron', sans-serif; font-size: 0.7rem; }
+  .score-row { display: flex; justify-content: space-between; gap: 14px; margin-top: 2px; }
+
+  .special-panel {
+    position: absolute; right: 14px; top: 96px; z-index: 12;
+    display: flex; flex-direction: column; gap: 7px; max-width: 185px;
+  }
+  .special-panel button {
+    background: rgba(18, 15, 46, 0.92); color: #fff;
+    border: 1px solid rgba(192, 132, 252, 0.45);
+    padding: 8px 11px; border-radius: 11px; font-size: 0.72rem; font-weight: 600; cursor: pointer;
+    text-align: left; transition: all 0.2s ease;
+  }
+  .special-panel button:hover:not(:disabled) { border-color: #00e5ff; transform: translateY(-1px); }
+  .special-panel button:disabled { opacity: 0.38; cursor: default; }
+
+  .hud-bottom {
+    position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 8px; z-index: 10; flex-wrap: nowrap; justify-content: center;
+    width: max-content; max-width: 96vw;
+  }
+  button.hud-btn {
+    background: rgba(18, 15, 46, 0.92); color: #e2e8f0;
+    border: 1px solid rgba(129, 140, 248, 0.35);
+    padding: 9px 13px; border-radius: 12px;
+    font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.8rem;
+    cursor: pointer; backdrop-filter: blur(8px); transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+  button.hud-btn:hover { border-color: #00e5ff; transform: translateY(-2px); }
+  button.hud-btn.active { background: linear-gradient(135deg, #00e5ff, #8b5cf6); color: #05040d; font-weight: 700; border-color: #00e5ff; }
+
+  #victory-modal {
+    display: none; position: fixed; inset: 0; z-index: 100;
+    align-items: center; justify-content: center;
+    background: rgba(5, 8, 18, 0.84); backdrop-filter: blur(8px); padding: 16px;
+  }
+  .victory-box {
+    width: min(380px, 100%); padding: 26px;
+    background: linear-gradient(160deg, #1e1b4b, #0d0a24);
+    border: 1px solid #00e5ff; border-radius: 22px; text-align: center;
+    box-shadow: 0 0 40px rgba(0, 229, 255, 0.3);
+  }
+  .victory-box h3 { font-family: 'Orbitron', sans-serif; color: #00e5ff; font-size: 1.3rem; margin-bottom: 8px; }
+  .victory-box p { font-size: 0.9rem; color: #cbd5e1; margin-bottom: 18px; }
+
+  @media(max-width:700px) {
+    .hud-top { top: 8px; padding: 6px 10px; gap: 6px; }
+    .title { font-size: 0.72rem; }
+    .mode-pill { font-size: 0.6rem; padding: 2px 7px; }
+    .turn-badge { font-size: 0.66rem; padding: 3px 7px; }
+    .player-banner { top: 48px; font-size: 0.64rem; padding: 4px 11px; }
+    .score-panel { top: 82px; left: 8px; font-size: 0.65rem; padding: 6px 8px; }
+    .special-panel { top: 82px; right: 8px; max-width: 145px; }
+    .special-panel button { font-size: 0.64rem; padding: 6px 8px; }
+    .hud-bottom { bottom: 10px; gap: 5px; }
+    button.hud-btn { padding: 8px 9px; font-size: 0.68rem; }
+  }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+
+<!-- ==================== PANTALLA DE INICIO ==================== -->
+<div class="overlay-screen" id="start-screen">
+  <div class="menu-card">
+    <div class="menu-logo">◉ DAMAS 3D ◉</div>
+    <p class="menu-sub">Elegí tu modo de juego o personalizá el tablero</p>
+
+    <div class="menu-btn-group">
+      <button type="button" class="menu-btn primary" onclick="startGameMode('classic')">
+        <span>▶ INICIAR PARTIDA</span>
+        <small>Damas clásicas con saltos encadenados y coronación</small>
+      </button>
+
+      <button type="button" class="menu-btn crystal" onclick="startGameMode('crystal')">
+        <span>✧ MODO CRISTAL</span>
+        <small>Incluye Fichas Cristal omnidireccionales y Pulso de Energía</small>
+      </button>
+
+      <button type="button" class="menu-btn" onclick="openSettings()">
+        <span>⚙ AJUSTES</span>
+        <small>Colores mate tipo concreto para tablero y fichas</small>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== PANTALLA DE AJUSTES ==================== -->
+<div class="overlay-screen" id="settings-screen" style="display:none;">
+  <div class="menu-card">
+    <div class="menu-logo" style="font-size:1.3rem;">⚙ AJUSTES VISUALES</div>
+    <p class="menu-sub">Colores mate de alto contraste estilo bloque de concreto</p>
+
+    <div class="settings-group">
+      <label>COLOR DEL TABLERO</label>
+      <div class="theme-grid" id="board-theme-grid"></div>
+    </div>
+
+    <div class="settings-group">
+      <label>COLOR DE LAS FICHAS (J1 vs J2)</label>
+      <div class="theme-grid" id="piece-theme-grid"></div>
+    </div>
+
+    <button type="button" class="menu-btn primary" onclick="closeSettings()">
+      <span>✓ GUARDAR Y VOLVER</span>
+    </button>
+  </div>
+</div>
+
+<!-- ==================== HUD DEL JUEGO ==================== -->
+<div class="hud-top">
+  <div class="title">◉ DAMAS 3D</div>
+  <span class="mode-pill" id="mode-badge">CLÁSICO</span>
+  <div class="turn-badge">
+    <span class="turn-dot" id="turn-dot" style="background:#06b6d4; color:#06b6d4;"></span>
+    <span id="turn-text">Turno: J1</span>
+  </div>
+  <div class="status-msg" id="status-msg"></div>
+</div>
+
+<div class="player-banner" id="player-banner">● ES TU TURNO · JUGADOR 1</div>
+
+<div class="score-panel">
+  <strong>FICHAS EN JUEGO</strong>
+  <div class="score-row"><span>Jugador 1:</span><span id="count-w">12</span></div>
+  <div class="score-row"><span>Jugador 2:</span><span id="count-b">12</span></div>
+  <div class="score-row" id="crystal-charge-row" style="margin-top:4px;color:#e879f9;">
+    <span>Energía Cristal:</span><span id="crystal-charge">0/2</span>
+  </div>
+</div>
+
+<div class="special-panel" id="special-panel">
+  <button id="crystal-ascend-btn" disabled onclick="activateCrystalAscend()">✧ CORONAR CRISTAL</button>
+</div>
+
+<div class="hud-bottom">
+  <button class="hud-btn" onclick="openMainMenu()">☰ Menú</button>
+  <button id="btn-mode" class="hud-btn active" onclick="toggleMode()">vs IA</button>
+  <button class="hud-btn" onclick="resetGame()">Reiniciar</button>
+  <button class="hud-btn" onclick="flipCamera()">Girar</button>
+  <button class="hud-btn" onclick="openSettings()">⚙ Colores</button>
+</div>
+
+<div id="victory-modal">
+  <div class="victory-box">
+    <h3 id="victory-title">¡VICTORIA!</h3>
+    <p id="victory-desc">Partida finalizada.</p>
+    <button type="button" class="menu-btn primary" onclick="closeVictoryAndReset()">▶ JUGAR DE NUEVO</button>
+  </div>
+</div>
+
+<div id="canvas-container"></div>
+
+<script>
+// ==================== TEMAS ESTILO CONCRETO DE MINECRAFT ====================
+const BOARD_THEMES = [
+  { id: 'concrete-classic', name: 'Concreto Cian / Gris', light: 0x38bdf8, dark: 0x1e293b, border: 0x00e5ff, swatch: 'linear-gradient(135deg,#38bdf8,#1e293b)' },
+  { id: 'concrete-lime', name: 'Concreto Lima / Bosque', light: 0x84cc16, dark: 0x14532d, border: 0xa3e635, swatch: 'linear-gradient(135deg,#84cc16,#14532d)' },
+  { id: 'concrete-purple', name: 'Concreto Violeta / Índigo', light: 0xa855f7, dark: 0x1e1b4b, border: 0xd946ef, swatch: 'linear-gradient(135deg,#a855f7,#1e1b4b)' },
+  { id: 'concrete-sand', name: 'Concreto Hueso / Carbón', light: 0x94a3b8, dark: 0x0f172a, border: 0xfbbf24, swatch: 'linear-gradient(135deg,#94a3b8,#0f172a)' }
+];
+
+const PIECE_THEMES = [
+  {
+    id: 'cyan-magenta', name: 'Cian vs Magenta',
+    wBody: 0x06b6d4, wTrim: 0x67e8f9, wEmissive: 0x0891b2,
+    bBody: 0xdb2777, bTrim: 0xf9a8d4, bEmissive: 0xbe185d,
+    swatch: 'linear-gradient(135deg,#06b6d4,#db2777)'
+  },
+  {
+    id: 'yellow-blue', name: 'Amarillo vs Azul',
+    wBody: 0xeab308, wTrim: 0xfef08a, wEmissive: 0xca8a04,
+    bBody: 0x2563eb, bTrim: 0x93c5fd, bEmissive: 0x1d4ed8,
+    swatch: 'linear-gradient(135deg,#eab308,#2563eb)'
+  },
+  {
+    id: 'lime-orange', name: 'Lima vs Naranja',
+    wBody: 0x65a30d, wTrim: 0xbef264, wEmissive: 0x4d7c0f,
+    bBody: 0xea580c, bTrim: 0xfdba74, bEmissive: 0xc2410c,
+    swatch: 'linear-gradient(135deg,#65a30d,#ea580c)'
+  },
+  {
+    id: 'white-red', name: 'Blanco vs Rojo',
+    wBody: 0xcbd5e1, wTrim: 0x38bdf8, wEmissive: 0x0284c7,
+    bBody: 0xdc2626, bTrim: 0xfca5a5, bEmissive: 0xb91c1c,
+    swatch: 'linear-gradient(135deg,#cbd5e1,#dc2626)'
+  }
+];
+
+let currentBoardTheme = BOARD_THEMES[0];
+let currentPieceTheme = PIECE_THEMES[0];
+let gameVariant = 'classic'; // 'classic' | 'crystal'
+
+function renderSettingsUI() {
+  const bGrid = document.getElementById('board-theme-grid');
+  bGrid.innerHTML = BOARD_THEMES.map(t => `
+    <button type="button" class="theme-opt ${currentBoardTheme.id === t.id ? 'selected' : ''}" onclick="setBoardTheme('${t.id}')">
+      <span class="swatch" style="background:${t.swatch}"></span>
+      <span>${t.name}</span>
+    </button>
+  `).join('');
+
+  const pGrid = document.getElementById('piece-theme-grid');
+  pGrid.innerHTML = PIECE_THEMES.map(t => `
+    <button type="button" class="theme-opt ${currentPieceTheme.id === t.id ? 'selected' : ''}" onclick="setPieceTheme('${t.id}')">
+      <span class="swatch" style="background:${t.swatch}"></span>
+      <span>${t.name}</span>
+    </button>
+  `).join('');
+}
+
+function setBoardTheme(id) {
+  const found = BOARD_THEMES.find(t => t.id === id);
+  if (!found) return;
+  currentBoardTheme = found;
+  neonBorderMat.color.setHex(found.border);
+  updateHighlights();
+  renderSettingsUI();
+}
+
+function setPieceTheme(id) {
+  const found = PIECE_THEMES.find(t => t.id === id);
+  if (!found) return;
+  currentPieceTheme = found;
+  rebuildPieceMeshes();
+  updateHUD();
+  renderSettingsUI();
+}
+
+function openSettings() {
+  renderSettingsUI();
+  document.getElementById('settings-screen').style.display = 'flex';
+}
+function closeSettings() {
+  document.getElementById('settings-screen').style.display = 'none';
+}
+function openMainMenu() {
+  document.getElementById('start-screen').style.display = 'flex';
+}
+function startGameMode(variant) {
+  gameVariant = variant;
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('mode-badge').textContent = variant === 'crystal' ? 'MODO CRISTAL' : 'CLÁSICO';
+  document.getElementById('special-panel').style.display = variant === 'crystal' ? 'flex' : 'none';
+  document.getElementById('crystal-charge-row').style.display = variant === 'crystal' ? 'flex' : 'none';
+  initBoardState();
+}
+
+// ==================== AUDIO SINTETIZADO (WEB AUDIO API) ====================
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function playSound(type) {
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  const now = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain); gain.connect(audioCtx.destination);
+
+  if (type === 'select') {
+    osc.type = 'sine'; osc.frequency.setValueAtTime(540, now);
+    osc.frequency.exponentialRampToValueAtTime(820, now + 0.08);
+    gain.gain.setValueAtTime(0.12, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+    osc.start(now); osc.stop(now + 0.09);
+  } else if (type === 'move') {
+    osc.type = 'triangle'; osc.frequency.setValueAtTime(260, now);
+    osc.frequency.exponentialRampToValueAtTime(120, now + 0.16);
+    gain.gain.setValueAtTime(0.2, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+    osc.start(now); osc.stop(now + 0.18);
+  } else if (type === 'capture') {
+    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(210, now);
+    osc.frequency.exponentialRampToValueAtTime(55, now + 0.28);
+    gain.gain.setValueAtTime(0.26, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+    osc.start(now); osc.stop(now + 0.3);
+  } else if (type === 'king') {
+    osc.type = 'sine'; osc.frequency.setValueAtTime(440, now);
+    osc.frequency.setValueAtTime(660, now + 0.1);
+    osc.frequency.setValueAtTime(880, now + 0.2);
+    gain.gain.setValueAtTime(0.18, now); gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+    osc.start(now); osc.stop(now + 0.35);
+  }
+}
+
+// ==================== MOTOR DE REGLAS DAMAS 3D ====================
+let board = []; // null | { color: 'w'|'b', king: boolean, crystal: boolean }
+let turn = 'w';
+let selected = null;
+let validMoves = [];
+let mustContinueFrom = null; // { r, c } cuando hay captura múltiple encadenada
+let gameOver = false;
+let vsAI = true;
+let crystalEnergy = { w: 0, b: 0 };
+
+function cloneBoard(b) {
+  return b.map(row => row.map(cell => cell ? { ...cell } : null));
+}
+
+function inBounds(r, c) {
+  return r >= 0 && r < 8 && c >= 0 && c < 8;
+}
+
+function initBoardState() {
+  board = Array.from({ length: 8 }, () => Array(8).fill(null));
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      if ((r + c) % 2 === 1) {
+        if (r < 3) {
+          const isCrystal = gameVariant === 'crystal' && r === 2 && (c === 3 || c === 5);
+          board[r][c] = { color: 'b', king: false, crystal: isCrystal };
+        } else if (r > 4) {
+          const isCrystal = gameVariant === 'crystal' && r === 5 && (c === 2 || c === 4);
+          board[r][c] = { color: 'w', king: false, crystal: isCrystal };
+        }
+      }
+    }
+  }
+  turn = 'w';
+  selected = null;
+  validMoves = [];
+  mustContinueFrom = null;
+  gameOver = false;
+  crystalEnergy = { w: 0, b: 0 };
+  document.getElementById('victory-modal').style.display = 'none';
+  document.getElementById('status-msg').textContent = '';
+  rebuildPieceMeshes();
+  updateHighlights();
+  updateHUD();
+  rotateBoardForTurn(true);
+}
+
+function getPieceMoves(b, r, c, capturesOnly = false) {
+  const p = b[r][c];
+  if (!p) return [];
+  const enemy = p.color === 'w' ? 'b' : 'w';
+  const forward = p.color === 'w' ? -1 : 1;
+  const dirs = [];
+
+  if (p.king || p.crystal) {
+    dirs.push([-1, -1], [-1, 1], [1, -1], [1, 1]);
+  } else {
+    dirs.push([forward, -1], [forward, 1]);
+  }
+
+  const captures = [];
+  const regulars = [];
+
+  for (const [dr, dc] of dirs) {
+    if (p.king) {
+      // Dama desliza por la diagonal y salta piezas rivales a distancia
+      let step = 1;
+      let jumped = null;
+      while (inBounds(r + dr * step, c + dc * step)) {
+        const nr = r + dr * step;
+        const nc = c + dc * step;
+        const cell = b[nr][nc];
+        if (!cell) {
+          if (!jumped) {
+            regulars.push({ r: nr, c: nc, capture: null });
+          } else {
+            captures.push({ r: nr, c: nc, capture: jumped });
+          }
+        } else if (cell.color === enemy && !jumped) {
+          jumped = { r: nr, c: nc };
+        } else {
+          break;
+        }
+        step++;
+      }
+    } else {
+      // Ficha normal o ficha Cristal
+      const nr = r + dr;
+      const nc = c + dc;
+      if (inBounds(nr, nc) && !b[nr][nc]) {
+        regulars.push({ r: nr, c: nc, capture: null });
+        // La ficha Cristal también puede deslizar 2 casillas libres en diagonal
+        if (p.crystal) {
+          const nr2 = r + dr * 2;
+          const nc2 = c + dc * 2;
+          if (inBounds(nr2, nc2) && !b[nr2][nc2]) {
+            regulars.push({ r: nr2, c: nc2, capture: null });
+          }
+        }
+      }
+      // Salto de captura
+      const jr = r + dr * 2;
+      const jc = c + dc * 2;
+      if (inBounds(jr, jc) && b[nr]?.[nc]?.color === enemy && !b[jr][jc]) {
+        captures.push({ r: jr, c: jc, capture: { r: nr, c: nc } });
+      }
+    }
+  }
+
+  if (capturesOnly) return captures;
+  return captures.length > 0 ? captures : regulars;
+}
+
+function getAllValidMovesForColor(b, color) {
+  let allCaptures = [];
+  let allRegulars = [];
+
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      if (b[r][c]?.color === color) {
+        const moves = getPieceMoves(b, r, c, false);
+        for (const m of moves) {
+          if (m.capture) allCaptures.push({ fromR: r, fromC: c, move: m });
+          else allRegulars.push({ fromR: r, fromC: c, move: m });
+        }
+      }
+    }
+  }
+  return allCaptures.length > 0 ? allCaptures : allRegulars;
+}
+
+function executeMove(fromR, fromC, move) {
+  if (gameOver) return;
+  const p = board[fromR][fromC];
+  if (!p) return;
+
+  const isCapture = !!move.capture;
+  board[fromR][fromC] = null;
+  if (isCapture) {
+    board[move.capture.r][move.capture.c] = null;
+    if (gameVariant === 'crystal') {
+      crystalEnergy[turn] = Math.min(2, crystalEnergy[turn] + 1);
+    }
+  }
+
+  let crowned = false;
+  if (!p.king && ((p.color === 'w' && move.r === 0) || (p.color === 'b' && move.r === 7))) {
+    p.king = true;
+    crowned = true;
+  }
+  board[move.r][move.c] = p;
+
+  selected = null;
+  validMoves = [];
+  updateHighlights();
+
+  animatePieceMove(fromR, fromC, move.r, move.c, p.color, () => {
+    if (isCapture) {
+      playSound('capture');
+      spawnParticle(worldGridPosition(move.capture.r, move.capture.c).add(new THREE.Vector3(0, 0.35, 0)), 0xf43f5e, 24);
+    } else if (crowned) {
+      playSound('king');
+      spawnParticle(worldGridPosition(move.r, move.c).add(new THREE.Vector3(0, 0.5, 0)), 0xfbbf24, 22);
+    } else {
+      playSound('move');
+      const col = p.color === 'w' ? currentPieceTheme.wTrim : currentPieceTheme.bTrim;
+      spawnParticle(worldGridPosition(move.r, move.c).add(new THREE.Vector3(0, 0.15, 0)), col, 10);
+    }
+
+    rebuildPieceMeshes();
+    updateHUD();
+
+    // Verificar si la misma ficha puede seguir capturando en cadena
+    if (isCapture && !crowned) {
+      const nextCaptures = getPieceMoves(board, move.r, move.c, true);
+      if (nextCaptures.length > 0) {
+        mustContinueFrom = { r: move.r, c: move.c };
+        selected = { r: move.r, c: move.c };
+        validMoves = nextCaptures;
+        document.getElementById('status-msg').textContent = '¡CAPTURA EN CADENA!';
+        updateHighlights();
+        if (vsAI && turn === 'b') {
+          setTimeout(() => {
+            const bestChain = nextCaptures[0];
+            executeMove(move.r, move.c, bestChain);
+          }, 550);
+        }
+        return;
+      }
+    }
+
+    mustContinueFrom = null;
+    document.getElementById('status-msg').textContent = crowned ? '¡FICHA CORONADA!' : '';
+    finishTurn();
+  });
+}
+
+function finishTurn() {
+  turn = turn === 'w' ? 'b' : 'w';
+  selected = null;
+  validMoves = [];
+  updateHighlights();
+  updateHUD();
+
+  const nextMoves = getAllValidMovesForColor(board, turn);
+  if (nextMoves.length === 0) {
+    gameOver = true;
+    const winner = turn === 'w' ? (vsAI ? 'LA IA (J2)' : 'JUGADOR 2') : 'JUGADOR 1';
+    document.getElementById('victory-title').textContent = `¡GANA ${winner}!`;
+    document.getElementById('victory-desc').textContent = 'El rival se quedó sin fichas o sin movimientos disponibles.';
+    document.getElementById('victory-modal').style.display = 'flex';
+    return;
+  }
+
+  rotateBoardForTurn(false);
+  if (!gameOver && vsAI && turn === 'b') {
+    setTimeout(makeAIMove, 850);
+  }
+}
+
+function activateCrystalAscend() {
+  if (gameVariant !== 'crystal' || gameOver || crystalEnergy[turn] < 2) return;
+  if (vsAI && turn === 'b') return;
+
+  // Corona automáticamente una ficha Cristal (o ficha normal) del jugador activo
+  let target = null;
+  for (let r = 0; r < 8 && !target; r++) {
+    for (let c = 0; c < 8; c++) {
+      const cell = board[r][c];
+      if (cell && cell.color === turn && !cell.king && cell.crystal) {
+        target = { r, c };
+        break;
+      }
+    }
+  }
+  if (!target) {
+    for (let r = 0; r < 8 && !target; r++) {
+      for (let c = 0; c < 8; c++) {
+        const cell = board[r][c];
+        if (cell && cell.color === turn && !cell.king) {
+          target = { r, c };
+          break;
+        }
+      }
+    }
+  }
+  if (!target) {
+    document.getElementById('status-msg').textContent = 'TODAS TUS FICHAS YA SON DAMAS';
+    return;
+  }
+
+  board[target.r][target.c].king = true;
+  crystalEnergy[turn] = 0;
+  playSound('king');
+  spawnParticle(worldGridPosition(target.r, target.c).add(new THREE.Vector3(0, 0.55, 0)), 0xd946ef, 28);
+  document.getElementById('status-msg').textContent = '¡ASCENSIÓN CRISTAL ACTIVADA!';
+  rebuildPieceMeshes();
+  updateHUD();
+}
+
+function updateHUD() {
+  let countW = 0, countB = 0;
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      if (board[r][c]?.color === 'w') countW++;
+      if (board[r][c]?.color === 'b') countB++;
+    }
+  }
+  document.getElementById('count-w').textContent = countW;
+  document.getElementById('count-b').textContent = countB;
+  document.getElementById('crystal-charge').textContent = `${crystalEnergy[turn]}/2`;
+
+  const dot = document.getElementById('turn-dot');
+  const text = document.getElementById('turn-text');
+  const banner = document.getElementById('player-banner');
+  const c1 = '#' + currentPieceTheme.wBody.toString(16).padStart(6, '0');
+  const c2 = '#' + currentPieceTheme.bBody.toString(16).padStart(6, '0');
+
+  dot.style.background = turn === 'w' ? c1 : c2;
+  dot.style.color = turn === 'w' ? c1 : c2;
+  text.textContent = turn === 'w' ? 'Turno: J1' : (vsAI ? 'Turno: IA' : 'Turno: J2');
+  banner.textContent = gameOver
+    ? 'PARTIDA TERMINADA'
+    : (turn === 'w' ? '● ES TU TURNO · JUGADOR 1' : (vsAI ? '● TURNO DE LA IA' : '● ES TU TURNO · JUGADOR 2'));
+
+  const ascendBtn = document.getElementById('crystal-ascend-btn');
+  ascendBtn.disabled = gameOver || crystalEnergy[turn] < 2 || (vsAI && turn === 'b');
+}
+
+// ==================== ESCENA 3D CON THREE.JS ====================
+const container = document.getElementById('canvas-container');
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x070614, 0.02);
+
+const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 100);
+camera.position.set(0, 10.2, 11.2);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+container.appendChild(renderer.domElement);
+
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.06;
+controls.maxPolarAngle = Math.PI / 2.15;
+controls.minDistance = 6;
+controls.maxDistance = 22;
+controls.mouseButtons = { LEFT: null, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE };
+
+// Iluminación equilibrada para estética Concreto Mate
+const hemiLight = new THREE.HemisphereLight(0xe0e7ff, 0x1e1b4b, 0.88);
+scene.add(hemiLight);
+
+const keyLight = new THREE.DirectionalLight(0xffffff, 0.95);
+keyLight.position.set(7, 16, 9);
+keyLight.castShadow = true;
+keyLight.shadow.mapSize.width = 1024;
+keyLight.shadow.mapSize.height = 1024;
+const d = 7.5;
+keyLight.shadow.camera.left = -d; keyLight.shadow.camera.right = d;
+keyLight.shadow.camera.top = d; keyLight.shadow.camera.bottom = -d;
+scene.add(keyLight);
+
+const fillLight = new THREE.DirectionalLight(0xc7d2fe, 0.42);
+fillLight.position.set(-8, 10, -8);
+scene.add(fillLight);
+
+// Tablero 3D
+const TILE_SIZE = 1.15;
+const boardGroup = new THREE.Group();
+scene.add(boardGroup);
+
+const frameMesh = new THREE.Mesh(
+  new THREE.BoxGeometry(TILE_SIZE * 8 + 0.9, 0.45, TILE_SIZE * 8 + 0.9),
+  new THREE.MeshStandardMaterial({ color: 0x0b091e, metalness: 0.35, roughness: 0.65 })
+);
+frameMesh.position.y = -0.26;
+frameMesh.receiveShadow = true;
+boardGroup.add(frameMesh);
+
+const neonBorderMat = new THREE.MeshBasicMaterial({ color: currentBoardTheme.border });
+const neonBorder = new THREE.Mesh(
+  new THREE.BoxGeometry(TILE_SIZE * 8 + 0.96, 0.08, TILE_SIZE * 8 + 0.96),
+  neonBorderMat
+);
+neonBorder.position.y = -0.05;
+boardGroup.add(neonBorder);
+
+const tileMeshes = [];
+const highlightMeshes = [];
+
+function gridToWorld(r, c) {
+  return new THREE.Vector3((c - 3.5) * TILE_SIZE, 0, (r - 3.5) * TILE_SIZE);
+}
+function worldGridPosition(r, c) {
+  return boardGroup.localToWorld(gridToWorld(r, c).clone());
+}
+
+for (let r = 0; r < 8; r++) {
+  tileMeshes[r] = [];
+  highlightMeshes[r] = [];
+  for (let c = 0; c < 8; c++) {
+    const isLight = (r + c) % 2 === 0;
+    const tile = new THREE.Mesh(
+      new THREE.BoxGeometry(TILE_SIZE * 0.96, 0.16, TILE_SIZE * 0.96),
+      new THREE.MeshStandardMaterial({
+        color: isLight ? currentBoardTheme.light : currentBoardTheme.dark,
+        metalness: 0.05,
+        roughness: 0.8
+      })
+    );
+    const pos = gridToWorld(r, c);
+    tile.position.set(pos.x, -0.04, pos.z);
+    tile.receiveShadow = true;
+    tile.userData = { r, c };
+    boardGroup.add(tile);
+    tileMeshes[r][c] = tile;
+
+    const hl = new THREE.Mesh(
+      new THREE.RingGeometry(0.18, 0.38, 32),
+      new THREE.MeshBasicMaterial({ color: 0x00e5ff, side: THREE.DoubleSide, transparent: true, opacity: 0.9 })
+    );
+    hl.rotation.x = -Math.PI / 2;
+    hl.position.set(pos.x, 0.05, pos.z);
+    hl.visible = false;
+    boardGroup.add(hl);
+    highlightMeshes[r][c] = hl;
+  }
+}
+
+// ==================== GENERADOR DE FICHAS 3D ESTILO CONCRETO ====================
+function createPieceMaterials(color) {
+  const isW = color === 'w';
+  return {
+    body: new THREE.MeshStandardMaterial({
+      color: isW ? currentPieceTheme.wBody : currentPieceTheme.bBody,
+      metalness: 0.04,
+      roughness: 0.82
+    }),
+    trim: new THREE.MeshStandardMaterial({
+      color: isW ? currentPieceTheme.wTrim : currentPieceTheme.bTrim,
+      emissive: isW ? currentPieceTheme.wEmissive : currentPieceTheme.bEmissive,
+      emissiveIntensity: 0.38,
+      metalness: 0.12,
+      roughness: 0.5
+    })
+  };
+}
+
+function createCheckerMesh(cell) {
+  const group = new THREE.Group();
+  const mats = createPieceMaterials(cell.color);
+
+  // Disco base biselado
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.45, 0.22, 32), mats.body);
+  base.position.y = 0.11;
+  base.castShadow = true;
+  base.receiveShadow = true;
+  group.add(base);
+
+  // Anillo luminoso en el borde
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.028, 12, 36), mats.trim);
+  ring.rotation.x = Math.PI / 2;
+  ring.position.y = 0.21;
+  group.add(ring);
+
+  if (cell.king) {
+    // Segundo disco apilado + corona central para la Dama
+    const topDisc = new THREE.Mesh(new THREE.CylinderGeometry(0.37, 0.40, 0.19, 32), mats.body);
+    topDisc.position.y = 0.31;
+    topDisc.castShadow = true;
+    group.add(topDisc);
+
+    const crownRing = new THREE.Mesh(new THREE.TorusGeometry(0.36, 0.026, 12, 36), mats.trim);
+    crownRing.rotation.x = Math.PI / 2;
+    crownRing.position.y = 0.40;
+    group.add(crownRing);
+
+    const gem = new THREE.Mesh(new THREE.OctahedronGeometry(0.14, 0), mats.trim);
+    gem.position.y = 0.50;
+    group.add(gem);
+  } else if (cell.crystal) {
+    // Gema Cristal incrustada en el centro de la ficha especial
+    const gemMat = new THREE.MeshStandardMaterial({
+      color: 0xd946ef, emissive: 0x9333ea, emissiveIntensity: 0.85,
+      metalness: 0.15, roughness: 0.35, flatShading: true
+    });
+    const gem = new THREE.Mesh(new THREE.OctahedronGeometry(0.18, 0), gemMat);
+    gem.position.y = 0.33;
+    gem.scale.set(1, 1.25, 1);
+    group.add(gem);
+  } else {
+    // Relieve interior concéntrico para ficha común
+    const inner = new THREE.Mesh(new THREE.TorusGeometry(0.24, 0.02, 10, 28), mats.trim);
+    inner.rotation.x = Math.PI / 2;
+    inner.position.y = 0.22;
+    group.add(inner);
+  }
+
+  return group;
+}
+
+// ==================== GESTIÓN DE MESHES, ANIMACIÓN Y PARTÍCULAS ====================
+let pieceMeshes = [];
+let activeAnimations = [];
+let particles = [];
+
+function rebuildPieceMeshes() {
+  pieceMeshes.forEach(m => boardGroup.remove(m));
+  pieceMeshes = [];
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const cell = board[r][c];
+      if (cell) {
+        const mesh = createCheckerMesh(cell);
+        const pos = gridToWorld(r, c);
+        mesh.position.copy(pos);
+        mesh.userData = { r, c, color: cell.color };
+        boardGroup.add(mesh);
+        pieceMeshes.push(mesh);
+      }
+    }
+  }
+}
+
+function spawnParticle(pos, colorHex, count = 1) {
+  for (let i = 0; i < count; i++) {
+    const p = new THREE.Mesh(
+      new THREE.SphereGeometry(0.055, 8, 8),
+      new THREE.MeshBasicMaterial({ color: colorHex, transparent: true, opacity: 0.95 })
+    );
+    p.position.copy(pos);
+    scene.add(p);
+    particles.push({
+      mesh: p,
+      vel: new THREE.Vector3((Math.random() - 0.5) * 0.03, Math.random() * 0.04 + 0.01, (Math.random() - 0.5) * 0.03),
+      life: 1.0
+    });
+  }
+}
+
+function animatePieceMove(fromR, fromC, toR, toC, pieceColor, onComplete) {
+  const movingMesh = pieceMeshes.find(m => m.userData.r === fromR && m.userData.c === fromC);
+  if (!movingMesh) { onComplete(); return; }
+  const startPos = movingMesh.position.clone();
+  const endPos = gridToWorld(toR, toC);
+  const trailColor = pieceColor === 'w' ? currentPieceTheme.wTrim : currentPieceTheme.bTrim;
+  activeAnimations.push({ mesh: movingMesh, startPos, endPos, progress: 0, duration: 0.38, trailColor, onComplete });
+}
+
+// ==================== INTERACCIÓN ====================
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+let boardRotationStart = 0, boardRotationTarget = 0, boardRotationElapsed = 1, boardRotationDuration = 1.2, rotationLocked = false;
+
+function rotateBoardForTurn(immediate = false) {
+  if (vsAI) {
+    boardRotationTarget = 0;
+    boardGroup.rotation.y = 0;
+    rotationLocked = false;
+    return;
+  }
+  boardRotationStart = boardGroup.rotation.y;
+  boardRotationTarget = turn === 'b' ? Math.PI : 0;
+  boardRotationElapsed = immediate ? boardRotationDuration : 0;
+  rotationLocked = !immediate;
+  if (immediate) boardGroup.rotation.y = boardRotationTarget;
+}
+
+window.addEventListener('pointerdown', (e) => {
+  if (document.getElementById('start-screen').style.display !== 'none') return;
+  if (document.getElementById('settings-screen').style.display !== 'none') return;
+  if (e.button !== 0 || gameOver || activeAnimations.length > 0 || rotationLocked) return;
+  if (vsAI && turn === 'b') return;
+
+  pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
+  pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
+  raycaster.setFromCamera(pointer, camera);
+  const hits = raycaster.intersectObjects([...boardGroup.children, ...pieceMeshes], true);
+  if (!hits.length) return;
+
+  let hit = hits[0].object;
+  while (hit && hit.userData.r === undefined) hit = hit.parent;
+  if (!hit || hit.userData.r === undefined) return;
+  handleSquareClick(hit.userData.r, hit.userData.c);
+});
+
+function handleSquareClick(r, c) {
+  if (selected) {
+    const move = validMoves.find(m => m.r === r && m.c === c);
+    if (move) {
+      executeMove(selected.r, selected.c, move);
+      return;
+    }
+  }
+  if (mustContinueFrom) return;
+
+  const allTurnMoves = getAllValidMovesForColor(board, turn);
+  const selectable = allTurnMoves.filter(item => item.fromR === r && item.fromC === c);
+  if (selectable.length > 0) {
+    selected = { r, c };
+    validMoves = selectable.map(item => item.move);
+    playSound('select');
+    updateHighlights();
+  } else {
+    if (board[r][c]?.color === turn && allTurnMoves.some(m => m.move.capture)) {
+      document.getElementById('status-msg').textContent = '¡TENÉS UNA CAPTURA OBLIGATORIA!';
+    }
+    selected = null;
+    validMoves = [];
+    updateHighlights();
+  }
+}
+
+function updateHighlights() {
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const light = (r + c) % 2 === 0;
+      tileMeshes[r][c].material.color.setHex(light ? currentBoardTheme.light : currentBoardTheme.dark);
+      tileMeshes[r][c].material.emissive.setHex(0);
+      highlightMeshes[r][c].visible = false;
+    }
+  }
+  if (selected) {
+    tileMeshes[selected.r][selected.c].material.emissive.setHex(turn === 'w' ? 0x0284c7 : 0x7e22ce);
+    for (const m of validMoves) {
+      highlightMeshes[m.r][m.c].visible = true;
+      highlightMeshes[m.r][m.c].material.color.setHex(m.capture ? 0xf43f5e : 0x00e5ff);
+    }
+  }
+}
+
+// ==================== IA MINIMAX CON PODA ALFA-BETA ====================
+function evaluateBoard(b) {
+  let score = 0;
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const cell = b[r][c];
+      if (!cell) continue;
+      let val = cell.king ? 320 : (cell.crystal ? 165 : 100);
+      val += (7 - Math.abs(3.5 - c)) * 4;
+      val += cell.color === 'b' ? r * 5 : (7 - r) * 5;
+      score += cell.color === 'b' ? val : -val;
+    }
+  }
+  return score;
+}
+
+function simulateMove(b, fromR, fromC, move) {
+  const nb = cloneBoard(b);
+  const p = nb[fromR][fromC];
+  nb[fromR][fromC] = null;
+  if (move.capture) nb[move.capture.r][move.capture.c] = null;
+  if (!p.king && ((p.color === 'w' && move.r === 0) || (p.color === 'b' && move.r === 7))) {
+    p.king = true;
+  }
+  nb[move.r][move.c] = p;
+  return nb;
+}
+
+function minimax(b, depth, alpha, beta, maximizing) {
+  const color = maximizing ? 'b' : 'w';
+  const moves = getAllValidMovesForColor(b, color);
+  if (depth === 0 || moves.length === 0) return evaluateBoard(b);
+
+  if (maximizing) {
+    let best = -Infinity;
+    for (const item of moves) {
+      const nb = simulateMove(b, item.fromR, item.fromC, item.move);
+      best = Math.max(best, minimax(nb, depth - 1, alpha, beta, false));
+      alpha = Math.max(alpha, best);
+      if (beta <= alpha) break;
+    }
+    return best;
+  } else {
+    let best = Infinity;
+    for (const item of moves) {
+      const nb = simulateMove(b, item.fromR, item.fromC, item.move);
+      best = Math.min(best, minimax(nb, depth - 1, alpha, beta, true));
+      beta = Math.min(beta, best);
+      if (beta <= alpha) break;
+    }
+    return best;
+  }
+}
+
+function makeAIMove() {
+  if (gameOver || turn !== 'b') return;
+  const moves = getAllValidMovesForColor(board, 'b');
+  if (!moves.length) return;
+
+  let bestMove = moves[0];
+  let bestVal = -Infinity;
+  for (const item of moves) {
+    const nb = simulateMove(board, item.fromR, item.fromC, item.move);
+    const val = minimax(nb, 3, -Infinity, Infinity, false) + (Math.random() * 6 - 3);
+    if (val > bestVal) {
+      bestVal = val;
+      bestMove = item;
+    }
+  }
+  executeMove(bestMove.fromR, bestMove.fromC, bestMove.move);
+}
+
+// ==================== CONTROLES UI ====================
+function toggleMode() {
+  vsAI = !vsAI;
+  const btn = document.getElementById('btn-mode');
+  btn.textContent = vsAI ? 'vs IA' : '2 Jugadores';
+  btn.classList.toggle('active', vsAI);
+  updateHUD();
+  if (vsAI && turn === 'b' && !gameOver) setTimeout(makeAIMove, 500);
+}
+function resetGame() { initBoardState(); }
+function closeVictoryAndReset() {
+  document.getElementById('victory-modal').style.display = 'none';
+  initBoardState();
+}
+let camFlipped = false;
+function flipCamera() {
+  camFlipped = !camFlipped;
+  camera.position.set(0, 10.2, camFlipped ? -11.2 : 11.2);
+  controls.target.set(0, 0, 0);
+}
+
+// ==================== BUCLE DE RENDERIZADO ====================
+const clock = new THREE.Clock();
+function animate() {
+  requestAnimationFrame(animate);
+  const dt = clock.getDelta();
+  const elapsed = clock.getElapsedTime();
+
+  if (boardRotationElapsed < boardRotationDuration) {
+    boardRotationElapsed = Math.min(boardRotationElapsed + dt, boardRotationDuration);
+    const t = boardRotationElapsed / boardRotationDuration;
+    const ease = t * t * (3 - 2 * t);
+    boardGroup.rotation.y = boardRotationStart + (boardRotationTarget - boardRotationStart) * ease;
+    if (boardRotationElapsed >= boardRotationDuration) rotationLocked = false;
+  }
+
+  pieceMeshes.forEach(m => {
+    if (selected && m.userData.r === selected.r && m.userData.c === selected.c && activeAnimations.length === 0) {
+      m.position.y = 0.24 + Math.sin(elapsed * 6) * 0.06;
+      m.rotation.y += dt * 1.6;
+    } else if (!activeAnimations.some(a => a.mesh === m)) {
+      m.position.y = THREE.MathUtils.lerp(m.position.y, 0, 0.2);
+      m.rotation.y = THREE.MathUtils.lerp(m.rotation.y, 0, 0.15);
+    }
+  });
+
+  for (let i = activeAnimations.length - 1; i >= 0; i--) {
+    const anim = activeAnimations[i];
+    anim.progress += dt / anim.duration;
+    const t = Math.min(anim.progress, 1);
+    const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+    anim.mesh.position.lerpVectors(anim.startPos, anim.endPos, ease);
+    anim.mesh.position.y = Math.sin(t * Math.PI) * 0.9;
+    if (Math.random() < 0.28) {
+      spawnParticle(boardGroup.localToWorld(anim.mesh.position.clone().add(new THREE.Vector3(0, 0.25, 0))), anim.trailColor, 1);
+    }
+    if (t >= 1) {
+      anim.mesh.position.copy(anim.endPos);
+      activeAnimations.splice(i, 1);
+      anim.onComplete();
+    }
+  }
+
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.life -= dt * 2.2;
+    p.mesh.position.add(p.vel);
+    p.mesh.scale.setScalar(Math.max(p.life, 0.01));
+    p.mesh.material.opacity = Math.max(p.life, 0);
+    if (p.life <= 0) {
+      scene.remove(p.mesh);
+      particles.splice(i, 1);
+    }
+  }
+
+  controls.update();
+  renderer.render(scene, camera);
+}
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+initBoardState();
+animate();
+</script>
+</body>
+</html>
