@@ -75,7 +75,6 @@
       padding: 0 20px;
     }
 
-    /* Efectos Neón + Skin Galaxy */
     .neon-text {
       color: var(--neon);
       text-shadow: 0 0 18px rgba(0, 229, 255, 0.65), 0 0 42px rgba(0, 229, 255, 0.25);
@@ -87,14 +86,6 @@
       background-clip: text;
       color: transparent;
       text-shadow: 0 0 28px rgba(157, 78, 221, 0.35);
-    }
-
-    .galaxy-border {
-      position: relative;
-      border: 1px solid rgba(199, 125, 255, 0.26);
-      box-shadow:
-        0 18px 48px rgba(4, 2, 16, 0.7),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08);
     }
 
     /* Header & Menú de 3 Puntitos */
@@ -166,7 +157,6 @@
       color: var(--neon);
     }
 
-    /* Botón de 3 puntitos en línea */
     .dots-menu-wrapper {
       position: relative;
       display: inline-flex;
@@ -201,14 +191,8 @@
       transition: transform 0.25s ease, background 0.25s ease;
     }
 
-    .galaxy-dots-btn:hover .dot:nth-child(1) {
-      transform: translateX(-2px);
-    }
-
-    .galaxy-dots-btn:hover .dot:nth-child(3) {
-      transform: translateX(2px);
-    }
-
+    .galaxy-dots-btn:hover .dot:nth-child(1) { transform: translateX(-2px); }
+    .galaxy-dots-btn:hover .dot:nth-child(3) { transform: translateX(2px); }
     .galaxy-dots-btn[aria-expanded="true"] .dot {
       background: #00e5ff;
       transform: scale(1.25);
@@ -236,14 +220,8 @@
     }
 
     @keyframes fadeSlideDown {
-      from {
-        opacity: 0;
-        transform: translateY(-6px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .dots-dropdown button {
@@ -272,7 +250,7 @@
       color: var(--neon);
     }
 
-    /* Panel de vista abierta desde los 3 puntitos */
+    /* Drawer de secciones */
     .drawer-section {
       display: none;
       padding: 28px 0 8px;
@@ -480,7 +458,6 @@
       color: rgba(255, 255, 255, 0.82);
     }
 
-    /* Barra separadora con 3 puntitos */
     .section-dots-divider {
       display: flex;
       align-items: center;
@@ -570,9 +547,7 @@
       transition: all 0.2s ease;
     }
 
-    .cat-btn:hover {
-      border-color: var(--neon);
-    }
+    .cat-btn:hover { border-color: var(--neon); }
 
     .cat-btn.active {
       background: var(--neon);
@@ -580,7 +555,7 @@
       border-color: var(--neon);
     }
 
-    /* Grid de Juegos */
+    /* Grid y Tarjetas con Imagen Expandida */
     .games-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
@@ -605,30 +580,46 @@
 
     .game-banner {
       position: relative;
-      height: 155px;
+      height: 175px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 2.6rem;
+      overflow: hidden;
     }
 
-    .art-galaxy-cyan {
-      background: linear-gradient(135deg, #00e5ff 0%, #5e60ce 52%, #7400b8 100%);
+    .game-banner-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.35s ease;
     }
 
-    .art-galaxy-nebula {
-      background: linear-gradient(135deg, #9d4edd 0%, #d946ef 50%, #00e5ff 100%);
+    .game-card:hover .game-banner-img {
+      transform: scale(1.06);
     }
 
-    .art-galaxy-deep {
-      background: linear-gradient(135deg, #38bdf8 0%, #4361ee 50%, #9d4edd 100%);
+    .game-banner-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(5, 4, 13, 0.35) 0%,
+        transparent 45%,
+        rgba(5, 4, 13, 0.55) 100%
+      );
+      pointer-events: none;
     }
 
-    .art-galaxy-sunset {
-      background: linear-gradient(135deg, #f72585 0%, #7209b7 52%, #3a0ca3 100%);
-    }
+    .art-galaxy-cyan { background: linear-gradient(135deg, #00e5ff 0%, #5e60ce 52%, #7400b8 100%); }
+    .art-galaxy-nebula { background: linear-gradient(135deg, #9d4edd 0%, #d946ef 50%, #00e5ff 100%); }
+    .art-galaxy-deep { background: linear-gradient(135deg, #38bdf8 0%, #4361ee 50%, #9d4edd 100%); }
+    .art-galaxy-sunset { background: linear-gradient(135deg, #f72585 0%, #7209b7 52%, #3a0ca3 100%); }
 
-    .game-icon-box {
+    .game-icon-fallback {
+      position: relative;
+      z-index: 1;
       width: 68px;
       height: 68px;
       border-radius: 20px;
@@ -636,6 +627,7 @@
       backdrop-filter: blur(8px);
       display: grid;
       place-items: center;
+      font-size: 2.3rem;
       border: 1px solid rgba(255, 255, 255, 0.18);
     }
 
@@ -643,11 +635,13 @@
       position: absolute;
       top: 12px;
       left: 12px;
-      padding: 4px 11px;
+      z-index: 2;
+      padding: 5px 12px;
       border-radius: 999px;
-      font-size: 0.65rem;
+      font-size: 0.66rem;
       font-weight: 800;
       letter-spacing: 0.08em;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
     }
 
     .tag-playable {
@@ -656,7 +650,7 @@
     }
 
     .tag-soon {
-      background: rgba(5, 4, 13, 0.78);
+      background: rgba(5, 4, 13, 0.84);
       color: var(--starlight);
       border: 1px solid rgba(224, 170, 255, 0.35);
     }
@@ -665,10 +659,13 @@
       position: absolute;
       bottom: 12px;
       right: 12px;
-      padding: 4px 10px;
+      z-index: 2;
+      padding: 5px 11px;
       border-radius: 999px;
-      background: rgba(5, 4, 13, 0.68);
-      font-size: 0.65rem;
+      background: rgba(5, 4, 13, 0.82);
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      font-size: 0.66rem;
       font-weight: 700;
       letter-spacing: 0.06em;
     }
@@ -720,9 +717,7 @@
     }
 
     /* Marcador */
-    .scoreboard-section {
-      padding-bottom: 64px;
-    }
+    .scoreboard-section { padding-bottom: 64px; }
 
     .scoreboard-card {
       background: var(--surface);
@@ -766,12 +761,12 @@
     .rank-2 { background: #c77dff; color: #05040d; }
     .rank-3 { background: #f72585; color: #ffffff; }
 
-    /* Modal de Juego */
+    /* Modal de Juego (Normal y Pantalla Completa) */
     .modal-backdrop {
       position: fixed;
       inset: 0;
       z-index: 80;
-      background: rgba(3, 2, 10, 0.86);
+      background: rgba(3, 2, 10, 0.88);
       backdrop-filter: blur(8px);
       display: none;
       overflow-y: auto;
@@ -797,11 +792,12 @@
 
     .modal-top {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: space-between;
       gap: 12px;
-      padding: 20px 24px;
+      padding: 18px 24px;
       border-bottom: 1px solid var(--line);
+      background: #09071a;
     }
 
     .modal-body {
@@ -835,7 +831,6 @@
       border-color: var(--neon);
     }
 
-    /* Footer */
     footer {
       border-top: 1px solid var(--line);
       padding: 32px 20px;
@@ -857,9 +852,7 @@
       font-size: 0.9rem;
     }
 
-    .toast-banner.show {
-      display: flex;
-    }
+    .toast-banner.show { display: flex; }
 
     .sr-only {
       position: absolute;
@@ -886,7 +879,6 @@
           <button type="button" data-nav="acerca">ACERCA DE</button>
         </nav>
 
-        <!-- BOTÓN DE 3 PUNTITOS EN LÍNEA -->
         <div class="dots-menu-wrapper">
           <button
             type="button"
@@ -925,7 +917,7 @@
     </div>
   </header>
 
-  <!-- PANEL DINÁMICO QUE SE ABRE DESDE LOS 3 PUNTITOS -->
+  <!-- PANEL DINÁMICO DE LOS 3 PUNTITOS -->
   <section class="drawer-section" id="dynamicDrawer" aria-live="polite">
     <div class="container">
       <div class="drawer-card">
@@ -977,7 +969,6 @@
           <span class="pill">✓ Creado con IA</span>
         </div>
 
-        <!-- Separador interactivo con 3 puntitos -->
         <div class="section-dots-divider">
           <button
             type="button"
@@ -1009,7 +1000,7 @@
             type="search"
             id="searchInput"
             class="search-input"
-            placeholder="Buscar juego (ej: Snake, Memotest, Carreras)…"
+            placeholder="Buscar juego (ej: Ajedrez, Snake, Memotest)…"
             aria-label="Buscar juego"
           />
           <div class="categories-row" id="categoriesRow"></div>
@@ -1053,11 +1044,11 @@
     <div class="modal-box">
       <div class="modal-top">
         <div>
-          <p class="eyebrow">EN PARTIDA</p>
-          <h2 class="font-display" id="modalGameTitle" style="font-size: 1.4rem; margin-top: 4px;"></h2>
+          <p class="eyebrow" style="font-size:0.65rem;">EN PARTIDA</p>
+          <h2 class="font-display" id="modalGameTitle" style="font-size: 1.15rem; margin-top: 2px;"></h2>
           <p id="modalGameDesc" style="font-size: 0.85rem; color: var(--muted); margin-top: 4px;"></p>
         </div>
-        <button type="button" class="btn-close-pill" id="closeModalBtn">✕</button>
+        <button type="button" class="btn-close-pill" id="closeModalBtn">✕ Cerrar</button>
       </div>
       <div class="modal-body" id="modalGameContainer"></div>
     </div>
@@ -1066,10 +1057,21 @@
   <script>
     /* =========================================================================
        1. CATÁLOGO ESCALABLE DE NEONVAULT
-       Para sumar un juego en subcarpeta, agrega un objeto con:
-       playable: true, type: "iframe", url: "./juegos/tu-juego/index.html"
        ========================================================================= */
     const GAMES = [
+      {
+        id: "ajedrez3d",
+        title: "Ajedrez 3D Cristal",
+        category: "Clásicos",
+        desc: "Ajedrez 3D contra la IA o 2 jugadores. Incluye modo Tradicional, Modo Cristal y colores personalizables.",
+        playable: true,
+        type: "iframe",
+        url: "./juegos/ajedrez-3d/index.html",
+        image: "./img/ajedrez.jpg",
+        icon: "♛",
+        art: "art-galaxy-nebula",
+        tag: "JUGABLE AHORA"
+      },
       {
         id: "snake",
         title: "Snake Neon",
@@ -1077,6 +1079,7 @@
         desc: "La viborita clásica con brillo cian y energía galaxia. Comé, crecé y superá tu récord.",
         playable: true,
         type: "builtin",
+        image: "./img/snake.jpg",
         icon: "⚡",
         art: "art-galaxy-cyan",
         tag: "JUGABLE AHORA"
@@ -1088,6 +1091,7 @@
         desc: "Dá vuelta las cartas cósmicas y encontrá todos los pares en el menor tiempo posible.",
         playable: true,
         type: "builtin",
+        image: "./img/memotest.jpg",
         icon: "🧠",
         art: "art-galaxy-nebula",
         tag: "JUGABLE AHORA"
@@ -1099,6 +1103,7 @@
         desc: "La IA eligió un número del 1 al 100. Seguí las pistas y acertá en pocos intentos.",
         playable: true,
         type: "builtin",
+        image: "./img/adivina.jpg",
         icon: "#️⃣",
         art: "art-galaxy-deep",
         tag: "JUGABLE AHORA"
@@ -1152,19 +1157,7 @@
         icon: "👾",
         art: "art-galaxy-sunset",
         tag: "PRÓXIMAMENTE"
-      },
-      {
-        id: "ajedrez3d",
-        title: "Ajedrez 3D Cristal",
-        category: "Clásicos",
-        desc: "Ajedrez 3D contra la IA o 2 jugadores. Incluye modo Tradicional, Modo Cristal y colores personalizables.",
-        playable: true,
-        type: "iframe",
-        url: "./juegos/ajedrez-3d/index.html",
-        icon: "♛",
-        art: "art-galaxy-nebula",
-        tag: "JUGABLE AHORA"
-      },
+      }
     ];
 
     const CATEGORIES = ["Todos", "Acción", "Carreras", "Puzzles", "Clásicos"];
@@ -1175,7 +1168,7 @@
     let activeCleanup = null;
 
     /* =========================================================================
-       2. MENÚ DE 3 PUNTITOS EN LÍNEA (Inicio / Novedades / Próximamente / Acerca de)
+       2. MENÚ DE 3 PUNTITOS EN LÍNEA
        ========================================================================= */
     const dotsMenuBtn = document.getElementById("dotsMenuBtn");
     const dotsDropdown = document.getElementById("dotsDropdown");
@@ -1230,12 +1223,12 @@
         drawerContent.innerHTML = `
           <div class="info-grid">
             <div class="info-box">
-              <h4>✦ Bienvenidos a NeonVault</h4>
-              <p>Renovamos nuestra identidad con estética Cian Eléctrico y Violeta Galaxia inspirada en el cosmos.</p>
+              <h4>♛ Nuevo: Ajedrez 3D Cristal</h4>
+              <p>Ya disponible en pantalla completa con Modo Tradicional, Modo Cristal y personalización de colores.</p>
             </div>
             <div class="info-box">
-              <h4>⚡ 3 Juegos Jugables al Instante</h4>
-              <p>Ya podés jugar Snake Neon, Memotest IA y Adivina el Número directamente desde el navegador.</p>
+              <h4>✦ Portadas Galácticas IA</h4>
+              <p>Nuevas portadas visuales de alta definición en las tarjetas de juegos activos.</p>
             </div>
             <div class="info-box">
               <h4>🏆 Marcador Local Activo</h4>
@@ -1299,7 +1292,7 @@
     });
 
     /* =========================================================================
-       3. RENDER DEL CATÁLOGO Y FILTROS
+       3. RENDER DEL CATÁLOGO CON IMAGEN EXPANDIDA
        ========================================================================= */
     const categoriesRow = document.getElementById("categoriesRow");
     const gamesGrid = document.getElementById("gamesGrid");
@@ -1365,7 +1358,12 @@
           (g) => `
           <article class="game-card">
             <div class="game-banner ${g.art}">
-              <div class="game-icon-box">${g.icon}</div>
+              ${
+                g.image
+                  ? `<img src="${g.image}" alt="${g.title}" class="game-banner-img" onerror="this.style.display='none'" />
+                     <div class="game-banner-overlay"></div>`
+                  : `<div class="game-icon-fallback">${g.icon}</div>`
+              }
               <span class="tag-status ${g.playable ? "tag-playable" : "tag-soon"}">${g.tag}</span>
               <span class="tag-cat">${g.category.toUpperCase()}</span>
             </div>
@@ -1390,7 +1388,7 @@
           const game = GAMES.find((item) => item.id === btn.dataset.gameId);
           if (!game) return;
           if (!game.playable) {
-            soonToastText.textContent = `${game.title} llega muy pronto a NeonVault. Mientras tanto, probá Snake Neon, Memotest IA o Adivina el Número.`;
+            soonToastText.textContent = `${game.title} llega muy pronto a NeonVault. Mientras tanto, probá Ajedrez 3D Cristal, Snake Neon o Memotest IA.`;
             soonToast.classList.add("show");
             return;
           }
@@ -1495,7 +1493,7 @@
     }
 
     /* =========================================================================
-       5. MODAL Y MINIJUEGOS INTEGRADOS
+       5. MODAL DE JUEGO (PANTALLA COMPLETA PARA IFRAME)
        ========================================================================= */
     const gameModal = document.getElementById("gameModal");
     const modalGameTitle = document.getElementById("modalGameTitle");
@@ -1521,18 +1519,52 @@
         activeCleanup();
         activeCleanup = null;
       }
+      const modalBox = gameModal.querySelector(".modal-box");
+      const modalTop = gameModal.querySelector(".modal-top");
+      const modalBody = gameModal.querySelector(".modal-body");
+
       modalGameTitle.textContent = game.title;
       modalGameDesc.textContent = game.desc;
       modalGameContainer.innerHTML = "";
       gameModal.classList.add("open");
 
       if (game.type === "iframe" && game.url) {
+        gameModal.style.padding = "0";
+        modalBox.style.maxWidth = "100vw";
+        modalBox.style.width = "100vw";
+        modalBox.style.height = "100dvh";
+        modalBox.style.margin = "0";
+        modalBox.style.borderRadius = "0";
+        modalBox.style.border = "none";
+        modalBox.style.display = "flex";
+        modalBox.style.flexDirection = "column";
+
+        modalTop.style.padding = "10px 16px";
+        modalGameDesc.style.display = "none";
+        modalBody.style.padding = "0";
+        modalBody.style.flex = "1";
+
+        modalGameContainer.style.height = "100%";
         modalGameContainer.innerHTML = `
           <iframe src="${game.url}" title="${game.title}"
-            style="width:100%;height:480px;border:1px solid rgba(0,229,255,0.3);border-radius:16px;background:#05040d;"></iframe>
+            style="width:100%;height:100%;border:none;display:block;background:#05040d;"></iframe>
         `;
         return;
       }
+
+      gameModal.style.padding = "";
+      modalBox.style.maxWidth = "";
+      modalBox.style.width = "";
+      modalBox.style.height = "";
+      modalBox.style.margin = "";
+      modalBox.style.borderRadius = "";
+      modalBox.style.border = "";
+      modalBox.style.display = "";
+      modalTop.style.padding = "";
+      modalGameDesc.style.display = "";
+      modalBody.style.padding = "";
+      modalBody.style.flex = "";
+      modalGameContainer.style.height = "";
 
       if (game.id === "snake") mountSnake(modalGameContainer);
       if (game.id === "memotest") mountMemotest(modalGameContainer);
@@ -1595,14 +1627,8 @@
         ctx.fillRect(0, 0, 320, 320);
         ctx.strokeStyle = "rgba(255,255,255,0.05)";
         for (let i = 0; i <= 16; i++) {
-          ctx.beginPath();
-          ctx.moveTo(i * 20, 0);
-          ctx.lineTo(i * 20, 320);
-          ctx.stroke();
-          ctx.beginPath();
-          ctx.moveTo(0, i * 20);
-          ctx.lineTo(320, i * 20);
-          ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(i * 20, 0); ctx.lineTo(i * 20, 320); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(0, i * 20); ctx.lineTo(320, i * 20); ctx.stroke();
         }
         ctx.fillStyle = "#f72585";
         ctx.shadowColor = "#f72585";
@@ -1658,10 +1684,7 @@
         dir = nextDir;
         const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
         if (
-          head.x < 0 ||
-          head.y < 0 ||
-          head.x >= 16 ||
-          head.y >= 16 ||
+          head.x < 0 || head.y < 0 || head.x >= 16 || head.y >= 16 ||
           snake.some((s) => s.x === head.x && s.y === head.y)
         ) {
           over = true;
@@ -1836,7 +1859,6 @@
       render();
     }
 
-    /* Inicialización */
     renderCategories();
     renderGames();
     renderScoreboard();
