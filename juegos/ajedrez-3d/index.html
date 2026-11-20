@@ -28,18 +28,18 @@
     background: linear-gradient(155deg, rgba(22, 16, 58, 0.95), rgba(10, 8, 28, 0.98));
     border: 1px solid rgba(0, 229, 255, 0.35);
     border-radius: 26px;
-    padding: 32px 26px;
+    padding: 30px 24px;
     text-align: center;
     box-shadow: 0 25px 65px rgba(0,0,0,0.8), 0 0 40px rgba(157, 78, 221, 0.25);
   }
   .menu-logo {
-    font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 1.7rem;
+    font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 1.65rem;
     letter-spacing: 2px;
     background: linear-gradient(90deg, #00e5ff, #c77dff, #ff4d9e);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     margin-bottom: 6px;
   }
-  .menu-sub { color: #b4afd8; font-size: 0.88rem; margin-bottom: 24px; }
+  .menu-sub { color: #b4afd8; font-size: 0.88rem; margin-bottom: 22px; }
   .menu-btn-group { display: flex; flex-direction: column; gap: 12px; }
   .menu-btn {
     width: 100%; padding: 14px 18px; border-radius: 16px;
@@ -64,81 +64,84 @@
   /* Panel de Ajustes */
   .settings-group { text-align: left; margin-bottom: 18px; }
   .settings-group label {
-    display: block; font-family: 'Orbitron', sans-serif; font-size: 0.75rem;
+    display: block; font-family: 'Orbitron', sans-serif; font-size: 0.74rem;
     color: #00e5ff; letter-spacing: 1px; margin-bottom: 8px;
   }
   .theme-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .theme-opt {
     padding: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15);
-    background: rgba(5,4,13,0.6); color: #e2e8f0; font-size: 0.8rem; font-weight: 600;
-    cursor: pointer; display: flex; align-items: center; gap: 8px;
+    background: rgba(5,4,13,0.6); color: #e2e8f0; font-size: 0.78rem; font-weight: 600;
+    cursor: pointer; display: flex; align-items: center; gap: 8px; text-align: left;
   }
-  .theme-opt.selected { border-color: #00e5ff; background: rgba(0, 229, 255, 0.14); color: #fff; }
-  .swatch { width: 16px; height: 16px; border-radius: 50%; border: 1px solid #fff5; flex-shrink: 0; }
+  .theme-opt.selected { border-color: #00e5ff; background: rgba(0, 229, 255, 0.16); color: #fff; }
+  .swatch { width: 16px; height: 16px; border-radius: 50%; border: 1px solid #fff6; flex-shrink: 0; }
 
   /* ==================== HUD EN PARTIDA ==================== */
   .hud-top {
-    position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
-    display: flex; align-items: center; gap: 14px;
-    background: rgba(13, 10, 36, 0.82); backdrop-filter: blur(12px);
-    padding: 9px 20px; border-radius: 50px;
+    position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 12px;
+    background: rgba(13, 10, 36, 0.86); backdrop-filter: blur(12px);
+    padding: 8px 18px; border-radius: 50px;
     border: 1px solid rgba(0, 229, 255, 0.28);
     z-index: 10; white-space: nowrap;
   }
   .title {
-    font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 0.95rem;
+    font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 0.9rem;
     background: linear-gradient(90deg, #00e5ff, #c084fc);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   }
   .mode-pill {
-    font-size: 0.7rem; font-weight: 700; padding: 3px 9px; border-radius: 99px;
+    font-size: 0.68rem; font-weight: 700; padding: 3px 9px; border-radius: 99px;
     background: rgba(157, 78, 221, 0.25); border: 1px solid #c084fc; color: #e9d5ff;
   }
   .turn-badge {
-    display: flex; align-items: center; gap: 8px;
-    padding: 4px 12px; border-radius: 20px; font-weight: 600; font-size: 0.82rem;
+    display: flex; align-items: center; gap: 7px;
+    padding: 4px 11px; border-radius: 20px; font-weight: 600; font-size: 0.8rem;
     background: rgba(255,255,255,0.08);
   }
   .turn-dot { width: 10px; height: 10px; border-radius: 50%; box-shadow: 0 0 10px currentColor; }
-  .status-msg { font-size: 0.82rem; font-weight: 700; color: #fbbf24; }
+  .status-msg { font-size: 0.8rem; font-weight: 700; color: #fbbf24; }
 
   .hud-bottom {
-    position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%);
-    display: flex; gap: 10px; z-index: 10; flex-wrap: wrap; justify-content: center;
+    position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 8px; z-index: 10; flex-wrap: nowrap; justify-content: center;
+    width: max-content; max-width: 96vw;
   }
   button.hud-btn {
-    background: rgba(18, 15, 46, 0.88); color: #e2e8f0;
+    background: rgba(18, 15, 46, 0.92); color: #e2e8f0;
     border: 1px solid rgba(129, 140, 248, 0.35);
-    padding: 9px 15px; border-radius: 12px;
-    font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.82rem;
+    padding: 9px 13px; border-radius: 12px;
+    font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.8rem;
     cursor: pointer; backdrop-filter: blur(8px); transition: all 0.2s ease;
+    white-space: nowrap;
   }
   button.hud-btn:hover { border-color: #00e5ff; transform: translateY(-2px); }
   button.hud-btn.active { background: linear-gradient(135deg, #00e5ff, #8b5cf6); color: #05040d; font-weight: 700; border-color: #00e5ff; }
 
   .player-banner {
-    position: absolute; top: 66px; left: 50%; transform: translateX(-50%); z-index: 10;
-    padding: 6px 15px; border-radius: 24px; background: rgba(13, 10, 36, 0.85);
+    position: absolute; top: 58px; left: 50%; transform: translateX(-50%); z-index: 10;
+    padding: 5px 14px; border-radius: 24px; background: rgba(13, 10, 36, 0.85);
     border: 1px solid rgba(0, 229, 255, 0.35);
-    font: 700 0.78rem 'Orbitron', sans-serif; letter-spacing: 0.7px; white-space: nowrap;
+    font: 700 0.74rem 'Orbitron', sans-serif; letter-spacing: 0.7px; white-space: nowrap;
   }
   .special-panel {
-    position: absolute; left: 16px; top: 18px; z-index: 12;
-    display: flex; flex-direction: column; gap: 8px; max-width: 195px;
+    position: absolute; left: 14px; top: 96px; z-index: 12;
+    display: flex; flex-direction: column; gap: 7px; max-width: 185px;
   }
   .special-panel button {
-    background: rgba(18, 15, 46, 0.9); color: #fff;
+    background: rgba(18, 15, 46, 0.92); color: #fff;
     border: 1px solid rgba(192, 132, 252, 0.45);
-    padding: 9px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; cursor: pointer;
+    padding: 8px 11px; border-radius: 11px; font-size: 0.72rem; font-weight: 600; cursor: pointer;
+    text-align: left;
   }
-  .special-panel button:disabled { opacity: 0.4; cursor: default; }
+  .special-panel button:disabled { opacity: 0.38; cursor: default; }
   .capture-panel {
-    position: absolute; right: 14px; top: 72px; z-index: 9; pointer-events: none;
-    background: rgba(13, 10, 36, 0.78); border: 1px solid rgba(129, 140, 248, 0.25);
-    border-radius: 12px; padding: 8px 11px; max-width: 195px; font-size: 0.74rem; color: #cbd5e1;
+    position: absolute; right: 14px; top: 96px; z-index: 9; pointer-events: none;
+    background: rgba(13, 10, 36, 0.82); border: 1px solid rgba(129, 140, 248, 0.25);
+    border-radius: 12px; padding: 8px 11px; max-width: 185px; font-size: 0.72rem; color: #cbd5e1;
   }
   .capture-panel strong { display: block; color: #fff; margin-bottom: 3px; }
-  .capture-line { min-height: 20px; word-break: break-word; color: #f8fafc; font-size: 1rem; }
+  .capture-line { min-height: 18px; word-break: break-word; color: #f8fafc; font-size: 0.95rem; }
 
   #choice-modal, #promo-modal {
     display: none; position: fixed; inset: 0; z-index: 100;
@@ -160,14 +163,16 @@
   .choice-cancel { margin-top: 10px; width: 100%; }
 
   @media(max-width:700px) {
-    .hud-top { top: 8px; padding: 7px 12px; gap: 8px; }
-    .title { font-size: 0.75rem; }
-    .turn-badge { font-size: 0.68rem; padding: 4px 8px; }
-    .player-banner { top: 56px; font-size: 0.66rem; }
-    .special-panel { top: auto; bottom: 72px; left: 8px; max-width: 150px; }
-    .capture-panel { top: 58px; right: 8px; max-width: 135px; font-size: 0.65rem; }
-    .hud-bottom { bottom: 8px; gap: 6px; }
-    button.hud-btn { padding: 7px 9px; font-size: 0.68rem; }
+    .hud-top { top: 8px; padding: 6px 10px; gap: 6px; }
+    .title { font-size: 0.72rem; }
+    .mode-pill { font-size: 0.6rem; padding: 2px 7px; }
+    .turn-badge { font-size: 0.66rem; padding: 3px 7px; }
+    .player-banner { top: 48px; font-size: 0.64rem; padding: 4px 11px; }
+    .special-panel { top: 82px; left: 8px; max-width: 145px; }
+    .special-panel button { font-size: 0.64rem; padding: 6px 8px; }
+    .capture-panel { top: 82px; right: 8px; max-width: 135px; font-size: 0.62rem; padding: 6px 8px; }
+    .hud-bottom { bottom: 10px; gap: 5px; }
+    button.hud-btn { padding: 8px 9px; font-size: 0.68rem; }
   }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -194,7 +199,7 @@
 
       <button type="button" class="menu-btn" onclick="openSettings()">
         <span>⚙ AJUSTES</span>
-        <small>Cambiar colores del tablero y de las piezas</small>
+        <small>Elegir colores estilo concreto para tablero y piezas</small>
       </button>
     </div>
   </div>
@@ -203,8 +208,8 @@
 <!-- ==================== PANTALLA DE AJUSTES ==================== -->
 <div class="overlay-screen" id="settings-screen" style="display:none;">
   <div class="menu-card">
-    <div class="menu-logo" style="font-size:1.35rem;">⚙ AJUSTES VISUALES</div>
-    <p class="menu-sub">Personalizá los colores para distinguir mejor cada pieza</p>
+    <div class="menu-logo" style="font-size:1.3rem;">⚙ AJUSTES VISUALES</div>
+    <p class="menu-sub">Colores mate de alto contraste estilo bloque de concreto</p>
 
     <div class="settings-group">
       <label>COLOR DEL TABLERO</label>
@@ -227,7 +232,7 @@
   <div class="title">♛ AJEDREZ 3D</div>
   <span class="mode-pill" id="mode-badge">TRADICIONAL</span>
   <div class="turn-badge" id="turn-badge">
-    <span class="turn-dot" id="turn-dot" style="background:#38bdf8; color:#38bdf8;"></span>
+    <span class="turn-dot" id="turn-dot" style="background:#06b6d4; color:#06b6d4;"></span>
     <span id="turn-text">Turno: J1</span>
   </div>
   <div class="status-msg" id="status-msg"></div>
@@ -249,9 +254,9 @@
 
 <div class="hud-bottom">
   <button class="hud-btn" onclick="openMainMenu()">☰ Menú</button>
-  <button id="btn-mode" class="hud-btn active" onclick="toggleMode()">Rival: vs IA</button>
+  <button id="btn-mode" class="hud-btn active" onclick="toggleMode()">vs IA</button>
   <button class="hud-btn" onclick="resetGame()">Reiniciar</button>
-  <button class="hud-btn" onclick="flipCamera()">Girar Vista</button>
+  <button class="hud-btn" onclick="flipCamera()">Girar</button>
   <button class="hud-btn" onclick="openSettings()">⚙ Colores</button>
 </div>
 
@@ -280,44 +285,44 @@
 <div id="canvas-container"></div>
 
 <script>
-// ==================== TEMAS DE COLOR (AJUSTES) ====================
+// ==================== TEMAS ESTILO CONCRETO DE MINECRAFT ====================
 const BOARD_THEMES = [
-  { id: 'galaxy', name: 'Galaxia Neón', light: 0x475569, dark: 0x161b33, border: 0x00e5ff, swatch: 'linear-gradient(135deg,#475569,#161b33)' },
-  { id: 'ivory', name: 'Arena / Obsidiana', light: 0x94a3b8, dark: 0x1e293b, border: 0xc084fc, swatch: 'linear-gradient(135deg,#94a3b8,#1e293b)' },
-  { id: 'emerald', name: 'Esmeralda Cyber', light: 0x2dd4bf, dark: 0x0f292e, border: 0x34d399, swatch: 'linear-gradient(135deg,#2dd4bf,#0f292e)' },
-  { id: 'gold', name: 'Bóveda Real', light: 0x78716c, dark: 0x1c1917, border: 0xfbbf24, swatch: 'linear-gradient(135deg,#78716c,#1c1917)' }
+  { id: 'concrete-classic', name: 'Concreto Cian / Gris', light: 0x38bdf8, dark: 0x1e293b, border: 0x00e5ff, swatch: 'linear-gradient(135deg,#38bdf8,#1e293b)' },
+  { id: 'concrete-lime', name: 'Concreto Lima / Bosque', light: 0x84cc16, dark: 0x14532d, border: 0xa3e635, swatch: 'linear-gradient(135deg,#84cc16,#14532d)' },
+  { id: 'concrete-purple', name: 'Concreto Violeta / Índigo', light: 0xa855f7, dark: 0x1e1b4b, border: 0xd946ef, swatch: 'linear-gradient(135deg,#a855f7,#1e1b4b)' },
+  { id: 'concrete-sand', name: 'Concreto Hueso / Carbón', light: 0x94a3b8, dark: 0x0f172a, border: 0xfbbf24, swatch: 'linear-gradient(135deg,#94a3b8,#0f172a)' }
 ];
 
 const PIECE_THEMES = [
   {
-    id: 'cyan-purple', name: 'Cian vs Púrpura',
-    wBody: 0xe0f7fa, wTrim: 0x00e5ff, wEmissive: 0x0284c7,
-    bBody: 0x4c1d95, bTrim: 0xf472b6, bEmissive: 0x9333ea,
-    swatch: 'linear-gradient(135deg,#00e5ff,#9333ea)'
+    id: 'cyan-magenta', name: 'Cian vs Magenta',
+    wBody: 0x06b6d4, wTrim: 0x67e8f9, wEmissive: 0x0891b2,
+    bBody: 0xdb2777, bTrim: 0xf9a8d4, bEmissive: 0xbe185d,
+    swatch: 'linear-gradient(135deg,#06b6d4,#db2777)'
   },
   {
-    id: 'white-crimson', name: 'Marfil vs Carmesí',
-    wBody: 0xf8fafc, wTrim: 0x38bdf8, wEmissive: 0x0369a1,
-    bBody: 0x881337, bTrim: 0xfb7185, bEmissive: 0xe11d48,
-    swatch: 'linear-gradient(135deg,#f8fafc,#e11d48)'
+    id: 'yellow-blue', name: 'Amarillo vs Azul',
+    wBody: 0xeab308, wTrim: 0xfef08a, wEmissive: 0xca8a04,
+    bBody: 0x2563eb, bTrim: 0x93c5fd, bEmissive: 0x1d4ed8,
+    swatch: 'linear-gradient(135deg,#eab308,#2563eb)'
   },
   {
-    id: 'gold-emerald', name: 'Oro vs Esmeralda',
-    wBody: 0xfef3c7, wTrim: 0xf59e0b, wEmissive: 0xd97706,
-    bBody: 0x064e3b, bTrim: 0x34d399, bEmissive: 0x059669,
-    swatch: 'linear-gradient(135deg,#fbbf24,#059669)'
+    id: 'lime-orange', name: 'Lima vs Naranja',
+    wBody: 0x65a30d, wTrim: 0xbef264, wEmissive: 0x4d7c0f,
+    bBody: 0xea580c, bTrim: 0xfdba74, bEmissive: 0xc2410c,
+    swatch: 'linear-gradient(135deg,#65a30d,#ea580c)'
   },
   {
-    id: 'silver-cobalt', name: 'Plata vs Cobalto',
-    wBody: 0xe2e8f0, wTrim: 0xffffff, wEmissive: 0x64748b,
-    bBody: 0x1e3a8a, bTrim: 0x60a5fa, bEmissive: 0x2563eb,
-    swatch: 'linear-gradient(135deg,#e2e8f0,#2563eb)'
+    id: 'white-red', name: 'Blanco vs Rojo',
+    wBody: 0xcbd5e1, wTrim: 0x38bdf8, wEmissive: 0x0284c7,
+    bBody: 0xdc2626, bTrim: 0xfca5a5, bEmissive: 0xb91c1c,
+    swatch: 'linear-gradient(135deg,#cbd5e1,#dc2626)'
   }
 ];
 
 let currentBoardTheme = BOARD_THEMES[0];
 let currentPieceTheme = PIECE_THEMES[0];
-let gameVariant = 'classic'; // 'classic' | 'crystal'
+let gameVariant = 'classic';
 
 function renderSettingsUI() {
   const bGrid = document.getElementById('board-theme-grid');
@@ -351,6 +356,7 @@ function setPieceTheme(id) {
   if (!found) return;
   currentPieceTheme = found;
   rebuildPieceMeshes();
+  evaluateGameState();
   renderSettingsUI();
 }
 
@@ -400,7 +406,7 @@ function playSound(type) {
   }
 }
 
-// ==================== MOTOR DE REGLAS (TRADICIONAL + MODO CRISTAL) ====================
+// ==================== MOTOR DE REGLAS ====================
 let board = [], turn = 'w', selected = null, validMoves = [];
 let gameOver = false, vsAI = true, pendingPromo = null, pendingChoice = null;
 let captured = { w: [], b: [] }, formsUsed = { w: [], b: [] }, enPassant = null;
@@ -448,10 +454,9 @@ function getPseudoMoves(b,r,c,epTarget){
 
   if(t==='p'){
     if(gameVariant === 'classic'){
-      // Ajedrez Tradicional: avanza 1 (o 2 desde inicio), captura en diagonal
       if(inBounds(r+dir,c) && !b[r+dir][c]){
         out.push({r:r+dir,c});
-        if((p.moved||0)===0 && inBounds(r+2*dir,c) && !b[r+2*dir][c]){
+        if((p.moved||0)===0 && inBounds(r+2*dir,c) && !b[r+dir][c] && !b[r+2*dir][c]){
           out.push({r:r+2*dir,c,doublePawn:true});
         }
       }
@@ -461,7 +466,6 @@ function getPseudoMoves(b,r,c,epTarget){
         if(epTarget && epTarget.r===nr && epTarget.c===nc) out.push({r:nr,c:nc,enPassant:true});
       }
     } else {
-      // Modo Cristal: peón libre en las 8 direcciones
       for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++)if(dr||dc){
         const nr=r+dr,nc=c+dc;
         if(inBounds(nr,nc)&&(!b[nr][nc]||b[nr][nc].color===enemy))out.push({r:nr,c:nc});
@@ -501,7 +505,6 @@ function getPseudoMoves(b,r,c,epTarget){
 function getLegalMoves(b,r,c,epTarget=enPassant){
   const pseudo = getPseudoMoves(b,r,c,epTarget);
   if(gameVariant === 'crystal') return pseudo;
-  // En modo Tradicional filtramos movimientos que dejen al propio rey en jaque
   const color = b[r][c].color;
   return pseudo.filter(m => {
     const sim = applyMoveSim(b, r, c, m, true, epTarget);
@@ -620,8 +623,8 @@ function updateSpecialControls(){
 }
 function evaluateGameState(){
   const dot=document.getElementById('turn-dot'),text=document.getElementById('turn-text'),status=document.getElementById('status-msg'),banner=document.getElementById('player-banner');
-  const c1 = '#' + currentPieceTheme.wTrim.toString(16).padStart(6,'0');
-  const c2 = '#' + currentPieceTheme.bTrim.toString(16).padStart(6,'0');
+  const c1 = '#' + currentPieceTheme.wBody.toString(16).padStart(6,'0');
+  const c2 = '#' + currentPieceTheme.bBody.toString(16).padStart(6,'0');
   dot.style.background=turn==='w'?c1:c2; dot.style.color=turn==='w'?c1:c2;
   text.textContent=turn==='w'?'Turno: J1':(vsAI?'Turno: IA':'Turno: J2');
   banner.textContent=gameOver?'PARTIDA TERMINADA':(turn==='w'?'● ES TU TURNO · JUGADOR 1':(vsAI?'● TURNO DE LA IA':'● ES TU TURNO · JUGADOR 2'));
@@ -637,7 +640,7 @@ function evaluateGameState(){
 // ==================== ESCENA 3D CON THREE.JS ====================
 const container = document.getElementById('canvas-container');
 const scene = new THREE.Scene();
-scene.fog = new THREE.FogExp2(0x070614, 0.022);
+scene.fog = new THREE.FogExp2(0x070614, 0.02);
 
 const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 100);
 camera.position.set(0, 10.5, 11.5);
@@ -648,7 +651,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.25;
+renderer.toneMappingExposure = 1.05;
 container.appendChild(renderer.domElement);
 
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -659,11 +662,11 @@ controls.minDistance = 6;
 controls.maxDistance = 22;
 controls.mouseButtons = { LEFT: null, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE };
 
-// Iluminación equilibrada para leer bien todas las siluetas
-const hemiLight = new THREE.HemisphereLight(0xdbeafe, 0x312e81, 1.15);
+// Iluminación suave para conservar colores saturados estilo bloque de concreto
+const hemiLight = new THREE.HemisphereLight(0xe0e7ff, 0x1e1b4b, 0.85);
 scene.add(hemiLight);
 
-const keyLight = new THREE.DirectionalLight(0xffffff, 1.45);
+const keyLight = new THREE.DirectionalLight(0xffffff, 0.95);
 keyLight.position.set(7, 16, 9);
 keyLight.castShadow = true;
 keyLight.shadow.mapSize.width = 1024;
@@ -673,7 +676,7 @@ keyLight.shadow.camera.left = -d; keyLight.shadow.camera.right = d;
 keyLight.shadow.camera.top = d; keyLight.shadow.camera.bottom = -d;
 scene.add(keyLight);
 
-const fillLight = new THREE.DirectionalLight(0xa5b4fc, 0.75);
+const fillLight = new THREE.DirectionalLight(0xc7d2fe, 0.45);
 fillLight.position.set(-8, 10, -8);
 scene.add(fillLight);
 
@@ -684,7 +687,7 @@ scene.add(boardGroup);
 
 const frameMesh = new THREE.Mesh(
   new THREE.BoxGeometry(TILE_SIZE * 8 + 0.9, 0.45, TILE_SIZE * 8 + 0.9),
-  new THREE.MeshStandardMaterial({ color: 0x0b091e, metalness: 0.6, roughness: 0.35 })
+  new THREE.MeshStandardMaterial({ color: 0x0b091e, metalness: 0.35, roughness: 0.65 })
 );
 frameMesh.position.y = -0.26;
 frameMesh.receiveShadow = true;
@@ -715,8 +718,8 @@ for (let r = 0; r < 8; r++) {
       new THREE.BoxGeometry(TILE_SIZE * 0.96, 0.16, TILE_SIZE * 0.96),
       new THREE.MeshStandardMaterial({
         color: isLight ? currentBoardTheme.light : currentBoardTheme.dark,
-        metalness: 0.25,
-        roughness: 0.48
+        metalness: 0.05,
+        roughness: 0.8
       })
     );
     const pos = gridToWorld(r, c);
@@ -738,21 +741,21 @@ for (let r = 0; r < 8; r++) {
   }
 }
 
-// ==================== MATERIALES OPACOS DE ALTO CONTRASTE (SIN TRANSPARENCIA BORROSA) ====================
+// ==================== MATERIALES MATE TIPO CONCRETO MINECRAFT ====================
 function createPieceMaterials(color) {
   const isW = color === 'w';
   return {
     body: new THREE.MeshStandardMaterial({
       color: isW ? currentPieceTheme.wBody : currentPieceTheme.bBody,
-      metalness: 0.18,
-      roughness: 0.36
+      metalness: 0.04,
+      roughness: 0.82
     }),
     trim: new THREE.MeshStandardMaterial({
       color: isW ? currentPieceTheme.wTrim : currentPieceTheme.bTrim,
       emissive: isW ? currentPieceTheme.wEmissive : currentPieceTheme.bEmissive,
-      emissiveIntensity: 0.65,
-      metalness: 0.45,
-      roughness: 0.25
+      emissiveIntensity: 0.35,
+      metalness: 0.1,
+      roughness: 0.55
     }),
     eye: new THREE.MeshBasicMaterial({
       color: isW ? currentPieceTheme.wTrim : currentPieceTheme.bTrim
@@ -890,13 +893,12 @@ function createChessPieceMesh(type, color) {
     group.add(orb);
 
   } else if (type === 'x') {
-    // Cristal sólido facetado de alta visibilidad (sin transparencia difusa)
     const stem = new THREE.Mesh(buildLathe([[0.30,0.25],[0.22,0.48],[0.15,0.62],[0.22,0.70]]), mats.body);
     stem.castShadow = true; group.add(stem);
 
     const gemMat = new THREE.MeshStandardMaterial({
-      color: 0xd946ef, emissive: 0x9333ea, emissiveIntensity: 0.85,
-      metalness: 0.35, roughness: 0.22, flatShading: true
+      color: 0xd946ef, emissive: 0x9333ea, emissiveIntensity: 0.75,
+      metalness: 0.2, roughness: 0.35, flatShading: true
     });
     const gem = new THREE.Mesh(new THREE.OctahedronGeometry(0.34, 0), gemMat);
     gem.position.y = 1.04; gem.scale.set(0.84, 1.25, 0.84); gem.castShadow = true;
@@ -1074,7 +1076,7 @@ function makeAIMove(){
 // ==================== CONTROLES UI ====================
 function toggleMode(){
   vsAI=!vsAI;const btn=document.getElementById('btn-mode');
-  btn.textContent=vsAI?'Rival: vs IA':'Rival: 2 Jugadores';btn.classList.toggle('active',vsAI);
+  btn.textContent=vsAI?'vs IA':'2 Jugadores';btn.classList.toggle('active',vsAI);
   evaluateGameState();updateSpecialControls();if(vsAI&&turn==='b'&&!gameOver)setTimeout(makeAIMove,450);
 }
 function resetGame(){initBoardState();}
